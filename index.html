@@ -208,6 +208,11 @@
       text-align: left;
       padding-left: 10px;
     }
+    .field-input-full {
+      width: 100%;
+      text-align: left;
+      padding-left: 10px;
+    }
     .toggle-row {
       display: flex;
       align-items: center;
@@ -517,6 +522,80 @@
     .ws-questions-default .q-block { margin-bottom: 0; }
     .ws-questions-e { display: flex; }
     .ws-questions-e .equation-grid { width: 100%; }
+    .ws-questions-f {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .ws-image-question {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+    }
+    .ws-image-frame {
+      flex: 1;
+      min-height: 0;
+      border: 2px solid #fdba74;
+      border-radius: 12px;
+      padding: 12px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: #fff7ed;
+    }
+    .ws-image-missing {
+      width: 100%;
+      min-height: 90mm;
+      border: 2px dashed #fb923c;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 16px;
+      color: #9a3412;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.4;
+      background: #fff;
+    }
+    .ws-image-grid {
+      width: 100%;
+      display: grid;
+      justify-content: center;
+      align-content: center;
+      gap: 14px 12px;
+      padding: 2px 2px 98px;
+    }
+    .ws-image-item {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      object-position: center;
+      display: block;
+      border-radius: 6px;
+    }
+    .ws-answer-box-row {
+      display: flex;
+      justify-content: flex-end;
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      z-index: 2;
+    }
+    .ws-answer-box {
+      width: 84px;
+      height: 84px;
+      border: 3px solid #4b5563;
+      border-radius: 14px;
+      background: white;
+    }
 
     .q-block { margin-bottom: 24px; }
     .q-num { font-size: 13px; font-weight: 700; color: var(--gray-500); margin-bottom: 8px; }
@@ -972,6 +1051,15 @@
         row-gap: 10px;
       }
 
+      .ws-image-grid {
+        gap: 12px 10px;
+      }
+
+      .ws-answer-box {
+        width: 72px;
+        height: 72px;
+      }
+
       .ws-page.two-question-layout .num-box {
         width: 50px;
         height: 44px;
@@ -1037,6 +1125,11 @@
       }
 
       .eq-answer-line { width: 44px; }
+
+      .ws-answer-box {
+        width: 64px;
+        height: 64px;
+      }
     }
 
     /* ── PRINT STYLES ── */
@@ -1108,6 +1201,7 @@
       <div class="section-grid" id="sectionGrid">
         <button class="section-btn active" type="button" onclick="selectSection(this,'3A3I')">3A3I</button>
         <button class="section-btn" type="button" onclick="selectSection(this,'2A8')">2A8</button>
+        <button class="section-btn" type="button" onclick="selectSection(this,'4A121')">4A121</button>
         <button class="section-btn" type="button" onclick="selectSection(this,'4A')">4A</button>
       </div>
     </div>
@@ -1142,6 +1236,41 @@
           <span class="type-badge">Type E</span>
           <div class="type-desc">Addition format like workbook questions</div>
         </div>
+      </div>
+    </div>
+
+    <div class="card is-hidden" id="card4A121">
+      <div class="card-title">4A121 Variations</div>
+      <div class="type-grid type-grid-single" id="typeGrid4A121">
+        <div class="type-card" data-type="F" onclick="selectType(this,'F')">
+          <span class="type-badge">Type F</span>
+          <div class="type-desc">Image counting with answer box (like workbook photo questions)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card type-f-only is-hidden">
+      <div class="card-title">4A121 Image Link</div>
+      <div class="field-row">
+        <span class="field-label">Image URL (S3)</span>
+      </div>
+      <input
+        type="url"
+        class="field-input field-input-full"
+        id="imageUrl4A121"
+        placeholder="https://your-bucket.s3.amazonaws.com/image.jpg"
+        onchange="onSection4A121ImageUrlChange()"
+      />
+      <div class="field-row" style="margin-top:10px;">
+        <span class="field-label">How many images</span>
+        <input type="number" class="field-input" id="imageCount4A121" value="15" min="1" max="40" onchange="onSection4A121ImageUrlChange()"/>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Images per row</span>
+        <input type="number" class="field-input" id="imagePerRow4A121" value="5" min="1" max="8" onchange="onSection4A121ImageUrlChange()"/>
+      </div>
+      <div class="type-desc" style="margin-top:8px;">
+        Paste one image URL, set the count, and it will render as a repeated grid.
       </div>
     </div>
 
@@ -1265,6 +1394,9 @@
 <div id="printTarget"></div>
 
 <script src="./worksheet-levels.js"></script>
+<script src="./worksheet-3a3i.js"></script>
+<script src="./worksheet-2a8.js"></script>
+<script src="./worksheet-4a121.js"></script>
 <script src="./worksheet-4a.js"></script>
 <script>
   let currentType = 'A';
@@ -1348,6 +1480,144 @@
     return trimmed || sectionName;
   }
 
+  function parseBoundedInt(rawValue, fallbackValue, minValue, maxValue) {
+    const parsed = parseInt(rawValue, 10);
+    if (!Number.isFinite(parsed)) return fallbackValue;
+    return Math.max(minValue, Math.min(maxValue, parsed));
+  }
+
+  function getConfiguredImageForSection(sectionName) {
+    if (window.WORKSHEET_4A121 && typeof window.WORKSHEET_4A121.getConfiguredImageForSection === 'function') {
+      return window.WORKSHEET_4A121.getConfiguredImageForSection(sectionName);
+    }
+
+    const sectionImages = WORKSHEET_IMAGES.sectionImages;
+    if (!sectionImages || typeof sectionImages !== 'object') return '';
+
+    const rawValue = sectionImages[sectionName];
+    if (typeof rawValue !== 'string') return '';
+
+    const trimmed = rawValue.trim();
+    return /^https?:\/\//i.test(trimmed) ? trimmed : '';
+  }
+
+  function getConfiguredPromptForSection(sectionName) {
+    if (window.WORKSHEET_4A121 && typeof window.WORKSHEET_4A121.getConfiguredPromptForSection === 'function') {
+      return window.WORKSHEET_4A121.getConfiguredPromptForSection(sectionName);
+    }
+
+    const sectionPrompts = WORKSHEET_IMAGES.sectionPrompts;
+    if (!sectionPrompts || typeof sectionPrompts !== 'object') return '';
+
+    const rawValue = sectionPrompts[sectionName];
+    if (typeof rawValue !== 'string') return '';
+    return rawValue.trim();
+  }
+
+  function getConfiguredGridForSection(sectionName) {
+    if (window.WORKSHEET_4A121 && typeof window.WORKSHEET_4A121.getConfiguredGridForSection === 'function') {
+      return window.WORKSHEET_4A121.getConfiguredGridForSection(sectionName);
+    }
+
+    const sectionGrid = WORKSHEET_IMAGES.sectionGrid;
+    if (!sectionGrid || typeof sectionGrid !== 'object') {
+      return { count: 15, perRow: 5 };
+    }
+
+    const rawGrid = sectionGrid[sectionName];
+    if (!rawGrid || typeof rawGrid !== 'object') {
+      return { count: 15, perRow: 5 };
+    }
+
+    return {
+      count: parseBoundedInt(rawGrid.count, 15, 1, 40),
+      perRow: parseBoundedInt(rawGrid.perRow, 5, 1, 8)
+    };
+  }
+
+  function getSuitable4A121GridRange(perRowValue) {
+    if (window.WORKSHEET_4A121 && typeof window.WORKSHEET_4A121.getSuitableGridRange === 'function') {
+      return window.WORKSHEET_4A121.getSuitableGridRange(perRowValue);
+    }
+
+    const safePerRow = parseBoundedInt(perRowValue, 5, 1, 8);
+    return {
+      perRow: safePerRow,
+      minCount: 1,
+      maxCount: safePerRow * 5
+    };
+  }
+
+  function normalize4A121GridInputs() {
+    const countInput = document.getElementById('imageCount4A121');
+    const perRowInput = document.getElementById('imagePerRow4A121');
+    if (!countInput || !perRowInput) return;
+
+    const rangeInfo = getSuitable4A121GridRange(perRowInput.value);
+    perRowInput.value = rangeInfo.perRow;
+    perRowInput.min = '1';
+    perRowInput.max = '8';
+
+    countInput.min = String(rangeInfo.minCount);
+    countInput.max = String(rangeInfo.maxCount);
+    countInput.value = parseBoundedInt(countInput.value, Math.min(15, rangeInfo.maxCount), rangeInfo.minCount, rangeInfo.maxCount);
+  }
+
+  function getSectionImageUrl(sectionName) {
+    if (sectionName === '4A121') {
+      const imageInput = document.getElementById('imageUrl4A121');
+      const inputValue = (imageInput?.value || '').trim();
+      if (/^https?:\/\//i.test(inputValue)) return inputValue;
+    }
+
+    return getConfiguredImageForSection(sectionName);
+  }
+
+  function getSectionImageGridSettings(sectionName) {
+    const configuredGrid = getConfiguredGridForSection(sectionName);
+    if (sectionName !== '4A121') return configuredGrid;
+
+    const countInput = document.getElementById('imageCount4A121');
+    const perRowInput = document.getElementById('imagePerRow4A121');
+    const rangeInfo = getSuitable4A121GridRange(perRowInput?.value ?? configuredGrid.perRow);
+
+    return {
+      count: parseBoundedInt(countInput?.value, configuredGrid.count, rangeInfo.minCount, rangeInfo.maxCount),
+      perRow: rangeInfo.perRow
+    };
+  }
+
+  function onSection4A121ImageUrlChange() {
+    normalize4A121GridInputs();
+
+    if (currentSection === '4A121' || currentType === 'F') {
+      generateWorksheet();
+    }
+  }
+
+  function initializeSectionImageInputs() {
+    const imageInput = document.getElementById('imageUrl4A121');
+    const countInput = document.getElementById('imageCount4A121');
+    const perRowInput = document.getElementById('imagePerRow4A121');
+    if (!imageInput || !countInput || !perRowInput) return;
+
+    const configuredUrl = getConfiguredImageForSection('4A121');
+    const configuredGrid = getConfiguredGridForSection('4A121');
+    if (configuredUrl && !imageInput.value.trim()) {
+      imageInput.value = configuredUrl;
+    }
+
+    if (!countInput.value.trim()) {
+      countInput.value = configuredGrid.count;
+    }
+
+    if (!perRowInput.value.trim()) {
+      perRowInput.value = configuredGrid.perRow;
+    }
+
+    normalize4A121GridInputs();
+  }
+
   function setCombineButtonState(enabled) {
     const btn = document.getElementById('btnCombine');
     if (btn) btn.classList.toggle('active', enabled);
@@ -1398,9 +1668,11 @@
   function updateSectionUI() {
     const is3A3I = currentSection === '3A3I';
     const is2A8 = currentSection === '2A8';
+    const is4A121 = currentSection === '4A121';
     const is4A = currentSection === '4A';
     const card3A3I = document.getElementById('card3A3I');
     const card2A8 = document.getElementById('card2A8');
+    const card4A121 = document.getElementById('card4A121');
     const card4A = document.getElementById('card4A');
     const cardNumberRange = document.getElementById('cardNumberRange');
     const combineBtn = document.getElementById('btnCombine');
@@ -1408,8 +1680,9 @@
 
     if (card3A3I) card3A3I.classList.toggle('is-hidden', !is3A3I);
     if (card2A8) card2A8.classList.toggle('is-hidden', !is2A8);
+    if (card4A121) card4A121.classList.toggle('is-hidden', !is4A121);
     if (card4A) card4A.classList.toggle('is-hidden', !is4A);
-    if (cardNumberRange) cardNumberRange.classList.toggle('is-hidden', is4A);
+    if (cardNumberRange) cardNumberRange.classList.toggle('is-hidden', is2A8 || is4A121 || is4A);
     if (combineBtn) combineBtn.classList.toggle('is-hidden', !is3A3I);
     if (headerCombineBtn) headerCombineBtn.classList.toggle('is-hidden', !is3A3I);
 
@@ -1417,13 +1690,22 @@
       el.classList.toggle('is-hidden', !is2A8);
     });
 
+    document.querySelectorAll('.type-f-only').forEach(el => {
+      el.classList.toggle('is-hidden', !is4A121);
+    });
+
     document.querySelectorAll('.type-4a-only').forEach(el => {
       el.classList.toggle('is-hidden', !is4A);
     });
 
+    const showBlankControl = is3A3I && (combineTypes || currentType === 'B' || currentType === 'D');
     document.querySelectorAll('.non-4a-control').forEach(el => {
-      el.classList.toggle('is-hidden', is4A);
+      el.classList.toggle('is-hidden', !showBlankControl);
     });
+
+    if (is4A121) {
+      normalize4A121GridInputs();
+    }
 
     render4AImageInputFields();
 
@@ -1432,6 +1714,9 @@
 
   function getEnforcedQuestionCount() {
     if (currentSection === '4A' && is4ATraceType(currentType)) return 2;
+
+    const isTypeF = !combineTypes && currentType === 'F';
+    if (isTypeF) return 1;
 
     const isTypeE = !combineTypes && currentType === 'E';
     if (isTypeE) return 16;
@@ -1491,6 +1776,17 @@
     } else if (currentSection === '2A8' && currentType !== 'E') {
       const typeECard = document.querySelector('.type-card[data-type="E"]');
       if (typeECard) selectType(typeECard, 'E');
+    } else if (currentSection === '4A121' && currentType !== 'F') {
+      const typeFCard = document.querySelector('.type-card[data-type="F"]');
+      if (typeFCard) selectType(typeFCard, 'F');
+    } else if (currentSection === '4A121' && currentType === 'F') {
+      const titleInput = document.getElementById('wsTitle');
+      const defaultPrompt = getConfiguredPromptForSection('4A121') || 'How many melons are there? Write the number in the box';
+      if (titleInput && (!titleInput.value || titleInput.value === 'Write the numbers' || titleInput.value === 'Add' || titleInput.value === 'Number Tracing')) {
+        titleInput.value = defaultPrompt;
+      }
+
+      initializeSectionImageInputs();
     } else if (currentSection === '4A' && !is4ATraceType(currentType)) {
       const default4ACard = document.querySelector('.type-card[data-type="4A1"]');
       if (default4ACard) selectType(default4ACard, '4A1');
@@ -1520,6 +1816,8 @@
 
     if (t === 'E') {
       currentSection = '2A8';
+    } else if (t === 'F') {
+      currentSection = '4A121';
     } else if (is4ATraceType(t)) {
       currentSection = '4A';
     } else {
@@ -1536,6 +1834,15 @@
         titleInput.value = 'Add';
       }
 
+      syncQuestionCountControl();
+    } else if (t === 'F') {
+      const titleInput = document.getElementById('wsTitle');
+      const defaultPrompt = getConfiguredPromptForSection('4A121') || 'How many melons are there? Write the number in the box';
+      if (titleInput && (!titleInput.value || titleInput.value === 'Write the numbers' || titleInput.value === 'Add' || titleInput.value === 'Number Tracing')) {
+        titleInput.value = defaultPrompt;
+      }
+
+      initializeSectionImageInputs();
       syncQuestionCountControl();
     } else if (is4ATraceType(t)) {
       const titleInput = document.getElementById('wsTitle');
@@ -1595,73 +1902,53 @@
     return a;
   }
 
-  const BOX_COLORS = ['col-purple','col-blue','col-amber','col-green','col-pink'];
-  const CIRCLE_COLORS = ['circle-teal','circle-purple','circle-amber'];
-
   function renderQuestion(nums, type, qIdx, blankCount) {
-    const color = BOX_COLORS[qIdx % BOX_COLORS.length];
-    let html = `<div class="q-block"><div class="q-num">(${qIdx + 1})</div>`;
-    const bc = Math.min(blankCount, nums.length - 1);
-
-    if (type === 'A') {
-      html += `<div class="num-row">${nums.map(n => `<div class="num-box ${color}">${n}</div>`).join('')}</div>`;
-      html += `<div class="num-row">${nums.map(() => `<div class="num-box num-blank"></div>`).join('')}</div>`;
-
-    } else if (type === 'B') {
-      html += `<div class="num-row">${nums.map(n => `<div class="num-box ${color}">${n}</div>`).join('')}</div>`;
-      html += `<div class="num-row">${nums.map((n, i) =>
-        i < bc ? `<div class="num-box num-blank"></div>` : `<div class="num-box ${color}">${n}</div>`
-      ).join('')}</div>`;
-
-    } else if (type === 'C') {
-      const blankSet = new Set();
-      const tries = Math.min(bc * 2, Math.floor(nums.length * 0.4));
-      while (blankSet.size < tries) blankSet.add(Math.floor(Math.random() * nums.length));
-      html += `<div class="num-row">${nums.map((n, i) => {
-        if (blankSet.has(i)) return `<div class="num-circle circle-blank"></div>`;
-        const c = CIRCLE_COLORS[i % CIRCLE_COLORS.length];
-        return `<div class="num-circle ${c}">${n}</div>`;
-      }).join('')}</div>`;
-      // second row
-      html += `<div class="num-row">${nums.map((n, i) => {
-        const c = CIRCLE_COLORS[i % CIRCLE_COLORS.length];
-        return `<div class="num-circle ${c}">${n + nums.length}</div>`;
-      }).join('')}</div>`;
-
-    } else if (type === 'D') {
-      html += `<div class="num-row">${nums.map(n => `<div class="num-box ${color}">${n}</div>`).join('')}</div>`;
-      html += `<div class="num-row">${nums.map((n, i) => {
-        const fromEnd = nums.length - 1 - i;
-        return fromEnd < bc
-          ? `<div class="num-box num-blank"></div>`
-          : `<div class="num-box ${color}">${n}</div>`;
-      }).join('')}</div>`;
+    if (window.WORKSHEET_3A3I && typeof window.WORKSHEET_3A3I.renderQuestion === 'function') {
+      return window.WORKSHEET_3A3I.renderQuestion(nums, type, qIdx, blankCount);
     }
 
-    html += `</div>`;
-    return html;
+    return '';
   }
 
   function parseIntegerList(rawText) {
-    return (rawText || '')
-      .split(/[^\d-]+/)
-      .map(v => parseInt(v, 10))
-      .filter(v => Number.isFinite(v));
+    if (window.WORKSHEET_2A8 && typeof window.WORKSHEET_2A8.parseIntegerList === 'function') {
+      return window.WORKSHEET_2A8.parseIntegerList(rawText);
+    }
+
+    return [];
   }
 
   function renderEquationQuestion(base, addend, qIdx) {
-    return `
-      <div class="q-block q-block-equation">
-        <div class="q-num">(${qIdx + 1})</div>
-        <div class="equation-row">
-          <span>${base}</span>
-          <span>+</span>
-          <span>${addend}</span>
-          <span>=</span>
-          <span class="eq-answer-line"></span>
-        </div>
-      </div>
-    `;
+    if (window.WORKSHEET_2A8 && typeof window.WORKSHEET_2A8.renderEquationQuestion === 'function') {
+      return window.WORKSHEET_2A8.renderEquationQuestion(base, addend, qIdx);
+    }
+
+    return '';
+  }
+
+  function buildEquationGrid(totalQ, eqNumbersRaw, fallbackNumbers, eqAddend) {
+    if (window.WORKSHEET_2A8 && typeof window.WORKSHEET_2A8.buildEquationGrid === 'function') {
+      return window.WORKSHEET_2A8.buildEquationGrid(totalQ, eqNumbersRaw, fallbackNumbers, eqAddend);
+    }
+
+    const parsedEqNumbers = parseIntegerList(eqNumbersRaw);
+    const seedNumbers = parsedEqNumbers.length ? parsedEqNumbers : (fallbackNumbers.length ? fallbackNumbers : [1]);
+    const equationItems = [];
+
+    for (let q = 0; q < totalQ; q++) {
+      const base = seedNumbers[q % seedNumbers.length];
+      equationItems.push(renderEquationQuestion(base, eqAddend, q));
+    }
+
+    return `<div class="equation-grid">${equationItems.join('')}</div>`;
+  }
+
+  function renderImageQuestion(imageUrl, imageCount, imagePerRow) {
+    if (window.WORKSHEET_4A121 && typeof window.WORKSHEET_4A121.renderImageQuestion === 'function') {
+      return window.WORKSHEET_4A121.renderImageQuestion(imageUrl, imageCount, imagePerRow);
+    }
+
+    return '<div class="ws-image-missing">Image section renderer is not available.</div>';
   }
 
   function buildWorksheetHTML(forcedTotalQ = null, silent = false) {
@@ -1747,34 +2034,30 @@
       `;
     }
 
-    if (end <= start) {
+    const isTypeE = !combineTypes && currentType === 'E';
+    const isTypeF = !combineTypes && currentType === 'F';
+
+    if (!isTypeE && !isTypeF && end <= start) {
       if (!silent) alert('End number must be greater than start number.');
       return null;
     }
 
     const allNums = range(start, end);
-    const isTypeE = !combineTypes && currentType === 'E';
+    const imageUrl = getSectionImageUrl('4A121');
+    const imageGrid = getSectionImageGridSettings('4A121');
+    const imagePrompt = getConfiguredPromptForSection('4A121') || 'How many melons are there? Write the number in the box.';
     const showKidSticker = currentSection === '3A3I';
     const enforcedCount = getEnforcedQuestionCount();
-    const totalQ  = forcedTotalQ ?? enforcedCount ?? requestedTotalQ;
-    const isOneQuestionLayout = !isTypeE && totalQ === 1;
-    const isTwoQuestionLayout = !isTypeE && totalQ === 2;
-    const segLen  = Math.ceil(allNums.length / totalQ);
-    const typeLabel = combineTypes ? 'Mixed (A + B + C + D)' : `Type ${currentType}`;
+    const totalQ  = isTypeF ? 1 : (forcedTotalQ ?? enforcedCount ?? requestedTotalQ);
+    const isOneQuestionLayout = !isTypeE && !isTypeF && totalQ === 1;
+    const isTwoQuestionLayout = !isTypeE && !isTypeF && totalQ === 2;
+    const segLen  = Math.ceil(allNums.length / Math.max(totalQ, 1));
 
     let questions = '';
     if (isTypeE) {
-      const parsedEqNumbers = parseIntegerList(eqNumbersRaw);
-      const fallbackEqNumbers = allNums.length ? allNums : [1];
-      const seedNumbers = parsedEqNumbers.length ? parsedEqNumbers : fallbackEqNumbers;
-      const equationItems = [];
-
-      for (let q = 0; q < totalQ; q++) {
-        const base = seedNumbers[q % seedNumbers.length];
-        equationItems.push(renderEquationQuestion(base, eqAddend, q));
-      }
-
-      questions = `<div class="equation-grid">${equationItems.join('')}</div>`;
+      questions = buildEquationGrid(totalQ, eqNumbersRaw, allNums.length ? allNums : [1], eqAddend);
+    } else if (isTypeF) {
+      questions = renderImageQuestion(imageUrl, imageGrid.count, imageGrid.perRow);
     } else {
       for (let q = 0; q < totalQ; q++) {
         const nums = allNums.slice(q * segLen, (q + 1) * segLen);
@@ -1794,7 +2077,7 @@
     `;
 
     return `
-      <div class="ws-page ${isTypeE ? 'type-e-layout' : ''} ${isOneQuestionLayout ? 'one-question-layout' : ''} ${isTwoQuestionLayout ? 'two-question-layout' : ''}" id="wsPage">
+      <div class="ws-page ${isTypeE ? 'type-e-layout' : ''} ${isTypeF ? 'type-f-layout' : ''} ${isOneQuestionLayout ? 'one-question-layout' : ''} ${isTwoQuestionLayout ? 'two-question-layout' : ''}" id="wsPage">
         <div class="ws-header-bar">
           <div class="ws-brand-column">
             <div class="ws-brand-logo-wrap">
@@ -1811,9 +2094,9 @@
           <div class="ws-right-column">${fields}</div>
         </div>
 
-        <div class="ws-instruction">${title}.</div>
+        <div class="ws-instruction">${isTypeF ? imagePrompt : `${title}.`}</div>
 
-        <div class="ws-questions ${isTypeE ? 'ws-questions-e' : 'ws-questions-default'}">
+        <div class="ws-questions ${isTypeE ? 'ws-questions-e' : (isTypeF ? 'ws-questions-f' : 'ws-questions-default')}">
           ${questions}
         </div>
 
