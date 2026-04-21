@@ -672,6 +672,166 @@
       height: 30px;
     }
 
+    .type-grid-4a {
+      grid-template-columns: 1fr 1fr;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .trace-image-hint {
+      font-size: 11px;
+      color: var(--gray-600);
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+    .trace-image-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .trace-image-group {
+      border: 1px solid var(--orange-200);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      background: var(--orange-50);
+    }
+    .trace-image-group-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--orange-800);
+      margin-bottom: 6px;
+    }
+    .trace-image-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+    .trace-image-field:last-child { margin-bottom: 0; }
+    .trace-image-label {
+      font-size: 11px;
+      color: var(--gray-600);
+      font-weight: 600;
+    }
+    .trace-image-url {
+      width: 100%;
+      text-align: left;
+      padding-left: 10px;
+    }
+
+    .trace4a-questions {
+      height: 100%;
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 10px;
+      align-content: stretch;
+    }
+    .trace4a-question {
+      border: 1.5px solid var(--orange-300);
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+      background: #ffffff;
+    }
+    .trace4a-code {
+      align-self: flex-end;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-500);
+      letter-spacing: 0.02em;
+    }
+    .trace4a-image-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+      gap: 6px;
+    }
+    .trace4a-image-tile {
+      height: 48px;
+      border: 1.5px dashed var(--orange-300);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff7ed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .trace4a-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .trace4a-image-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--orange-800);
+      background: #ffedd5;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .trace4a-body {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .trace4a-left {
+      flex: 1;
+      min-width: 0;
+    }
+    .trace4a-caption {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gray-700);
+      margin-bottom: 4px;
+    }
+    .trace4a-word {
+      font-size: 16px;
+      color: var(--gray-700);
+      margin-left: 10px;
+      margin-bottom: 2px;
+      text-transform: lowercase;
+    }
+    .trace4a-digit {
+      font-family: 'Nunito', sans-serif;
+      font-size: 82px;
+      line-height: 0.95;
+      font-weight: 800;
+      color: #111827;
+    }
+    .trace4a-template {
+      width: 126px;
+      height: 126px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.25);
+    }
+    .trace4a-template-digit {
+      font-family: 'Nunito', sans-serif;
+      font-size: 86px;
+      line-height: 1;
+      font-weight: 800;
+      color: rgba(255,255,255,0.95);
+      -webkit-text-stroke: 1.5px rgba(17,24,39,0.35);
+      text-shadow: 0 0 0 rgba(17,24,39,0.4);
+    }
+
     /* ── RESPONSIVE STYLES ── */
     @media (max-width: 1100px) {
       header {
@@ -796,6 +956,23 @@
         height: 26px;
       }
 
+      .trace4a-digit {
+        font-size: 64px;
+      }
+
+      .trace4a-template {
+        width: 100px;
+        height: 100px;
+      }
+
+      .trace4a-template-digit {
+        font-size: 68px;
+      }
+
+      .trace4a-image-tile {
+        height: 42px;
+      }
+
       .equation-row {
         font-size: 30px;
         gap: 8px;
@@ -843,7 +1020,7 @@
     Worksheet Generator
   </div>
   <div class="header-actions">
-    <button class="btn btn-outline" onclick="generateCombinedWorksheet()">Combine A+B+C+D</button>
+    <button class="btn btn-outline" id="btnHeaderCombine" onclick="generateCombinedWorksheet()">Combine A+B+C+D</button>
     <button class="btn btn-outline" onclick="printWorksheet()">Print / Save PDF</button>
     <button class="btn btn-exact" onclick="printWorksheet(true)">Print Exact Colors</button>
     <button class="btn btn-primary" onclick="generateWorksheet()">Generate</button>
@@ -886,6 +1063,7 @@
       <div class="section-grid" id="sectionGrid">
         <button class="section-btn active" type="button" onclick="selectSection(this,'3A3I')">3A3I</button>
         <button class="section-btn" type="button" onclick="selectSection(this,'2A8')">2A8</button>
+        <button class="section-btn" type="button" onclick="selectSection(this,'4A')">4A</button>
       </div>
     </div>
 
@@ -922,8 +1100,60 @@
       </div>
     </div>
 
+    <div class="card is-hidden" id="card4A">
+      <div class="card-title">4A Number Tracing</div>
+      <div class="type-grid type-grid-4a" id="typeGrid4A">
+        <div class="type-card" data-type="4A1" onclick="selectType(this,'4A1')">
+          <span class="type-badge">4A1</span>
+          <div class="type-desc">Trace number 1</div>
+        </div>
+        <div class="type-card" data-type="4A2" onclick="selectType(this,'4A2')">
+          <span class="type-badge">4A2</span>
+          <div class="type-desc">Trace number 2</div>
+        </div>
+        <div class="type-card" data-type="4A3" onclick="selectType(this,'4A3')">
+          <span class="type-badge">4A3</span>
+          <div class="type-desc">Trace number 3</div>
+        </div>
+        <div class="type-card" data-type="4A4" onclick="selectType(this,'4A4')">
+          <span class="type-badge">4A4</span>
+          <div class="type-desc">Trace number 4</div>
+        </div>
+        <div class="type-card" data-type="4A5" onclick="selectType(this,'4A5')">
+          <span class="type-badge">4A5</span>
+          <div class="type-desc">Trace number 5</div>
+        </div>
+        <div class="type-card" data-type="4A6" onclick="selectType(this,'4A6')">
+          <span class="type-badge">4A6</span>
+          <div class="type-desc">Trace number 6</div>
+        </div>
+        <div class="type-card" data-type="4A7" onclick="selectType(this,'4A7')">
+          <span class="type-badge">4A7</span>
+          <div class="type-desc">Trace number 7</div>
+        </div>
+        <div class="type-card" data-type="4A8" onclick="selectType(this,'4A8')">
+          <span class="type-badge">4A8</span>
+          <div class="type-desc">Trace number 8</div>
+        </div>
+        <div class="type-card" data-type="4A9" onclick="selectType(this,'4A9')">
+          <span class="type-badge">4A9</span>
+          <div class="type-desc">Trace number 9</div>
+        </div>
+        <div class="type-card" data-type="4A10" onclick="selectType(this,'4A10')">
+          <span class="type-badge">4A10</span>
+          <div class="type-desc">Trace number 10</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card type-4a-only is-hidden" id="card4AImages">
+      <div class="card-title">Insert Image URL</div>
+      <div class="trace-image-hint" id="traceImageHint">Add image URLs for both questions. The selected tracing type controls how many image fields are shown for each question.</div>
+      <div class="trace-image-groups" id="traceImageInputs"></div>
+    </div>
+
     <!-- Number Range -->
-    <div class="card">
+    <div class="card" id="cardNumberRange">
       <div class="card-title">Number Range</div>
       <div class="field-row">
         <span class="field-label">Start number</span>
@@ -940,15 +1170,19 @@
     </div>
 
     <!-- Questions -->
-    <div class="card">
+    <div class="card" id="cardQuestions">
       <div class="card-title">Questions</div>
       <div class="field-row">
         <span class="field-label">Total questions</span>
         <input type="number" class="field-input" id="totalQ" value="2" min="1" max="30"/>
       </div>
-      <div class="field-row">
+      <div class="field-row non-4a-control">
         <span class="field-label">Blanks (Type B/D)</span>
         <input type="number" class="field-input" id="blankCount" value="4" min="1" max="15"/>
+      </div>
+      <div class="field-row type-4a-only is-hidden">
+        <span class="field-label">Questions per page</span>
+        <input type="number" class="field-input" id="trace4AQCount" value="2" readonly/>
       </div>
       <div class="field-row type-e-only is-hidden">
         <span class="field-label">Add value (Type E)</span>
@@ -986,6 +1220,7 @@
 <div id="printTarget"></div>
 
 <script src="./worksheet-levels.js"></script>
+<script src="./worksheet-4a.js"></script>
 <script>
   let currentType = 'A';
   let currentSection = '3A3I';
@@ -995,6 +1230,67 @@
   const ALL_TYPES = ['A', 'B', 'C', 'D'];
   const WORKSHEET_LOGO_SRC = 'https://www.geniusbees.com/assets/icons/gb-logo.svg';
   const WORKSHEET_LEVELS = (typeof window.WORKSHEET_LEVELS_CONFIG === 'object' && window.WORKSHEET_LEVELS_CONFIG) ? window.WORKSHEET_LEVELS_CONFIG : {};
+  const traceImageUrlCache = {};
+
+  function is4ATraceType(typeValue) {
+    return /^4A(10|[1-9])$/.test(String(typeValue || '').trim());
+  }
+
+  function getTraceNumberFromCurrentType() {
+    if (!is4ATraceType(currentType)) return null;
+    if (window.WORKSHEET_4A && typeof window.WORKSHEET_4A.getTraceNumberFromType === 'function') {
+      return window.WORKSHEET_4A.getTraceNumberFromType(currentType);
+    }
+
+    const match = /^4A(10|[1-9])$/.exec(String(currentType || ''));
+    return match ? parseInt(match[1], 10) : null;
+  }
+
+  function sync4AImageCacheFromDOM() {
+    const traceNumber = getTraceNumberFromCurrentType();
+    if (!traceNumber || currentSection !== '4A') return;
+
+    const cacheKey = `4A${traceNumber}`;
+    if (window.WORKSHEET_4A && typeof window.WORKSHEET_4A.readImageValuesFromDOM === 'function') {
+      traceImageUrlCache[cacheKey] = window.WORKSHEET_4A.readImageValuesFromDOM(traceNumber, document.getElementById('traceImageInputs'));
+    }
+  }
+
+  function render4AImageInputFields() {
+    const host = document.getElementById('traceImageInputs');
+    const hint = document.getElementById('traceImageHint');
+    const traceCountInput = document.getElementById('trace4AQCount');
+    if (!host) return;
+
+    if (currentSection !== '4A' || !is4ATraceType(currentType)) {
+      host.innerHTML = '';
+      if (hint) hint.textContent = 'Add image URLs for both questions. The selected tracing type controls how many image fields are shown for each question.';
+      return;
+    }
+
+    const traceNumber = getTraceNumberFromCurrentType();
+    if (!traceNumber) return;
+
+    const cacheKey = `4A${traceNumber}`;
+    const initialValues = Array.isArray(traceImageUrlCache[cacheKey]) ? traceImageUrlCache[cacheKey] : [];
+
+    if (window.WORKSHEET_4A && typeof window.WORKSHEET_4A.buildImageFieldsHTML === 'function') {
+      host.innerHTML = window.WORKSHEET_4A.buildImageFieldsHTML(traceNumber, initialValues);
+    } else {
+      host.innerHTML = '';
+    }
+
+    if (hint) {
+      hint.textContent = `Insert ${traceNumber} image URL${traceNumber > 1 ? 's' : ''} for Question 1 and ${traceNumber} image URL${traceNumber > 1 ? 's' : ''} for Question 2.`;
+    }
+
+    if (traceCountInput) traceCountInput.value = 2;
+
+    host.querySelectorAll('.trace-image-url').forEach(input => {
+      input.addEventListener('input', sync4AImageCacheFromDOM);
+      input.addEventListener('change', sync4AImageCacheFromDOM);
+    });
+  }
 
   function getConfiguredLevelForSection(sectionName) {
     const sectionLevels = WORKSHEET_LEVELS.sectionLevels;
@@ -1056,22 +1352,42 @@
 
   function updateSectionUI() {
     const is3A3I = currentSection === '3A3I';
+    const is2A8 = currentSection === '2A8';
+    const is4A = currentSection === '4A';
     const card3A3I = document.getElementById('card3A3I');
     const card2A8 = document.getElementById('card2A8');
+    const card4A = document.getElementById('card4A');
+    const cardNumberRange = document.getElementById('cardNumberRange');
     const combineBtn = document.getElementById('btnCombine');
+    const headerCombineBtn = document.getElementById('btnHeaderCombine');
 
     if (card3A3I) card3A3I.classList.toggle('is-hidden', !is3A3I);
-    if (card2A8) card2A8.classList.toggle('is-hidden', is3A3I);
+    if (card2A8) card2A8.classList.toggle('is-hidden', !is2A8);
+    if (card4A) card4A.classList.toggle('is-hidden', !is4A);
+    if (cardNumberRange) cardNumberRange.classList.toggle('is-hidden', is4A);
     if (combineBtn) combineBtn.classList.toggle('is-hidden', !is3A3I);
+    if (headerCombineBtn) headerCombineBtn.classList.toggle('is-hidden', !is3A3I);
 
     document.querySelectorAll('.type-e-only').forEach(el => {
-      el.classList.toggle('is-hidden', is3A3I);
+      el.classList.toggle('is-hidden', !is2A8);
     });
+
+    document.querySelectorAll('.type-4a-only').forEach(el => {
+      el.classList.toggle('is-hidden', !is4A);
+    });
+
+    document.querySelectorAll('.non-4a-control').forEach(el => {
+      el.classList.toggle('is-hidden', is4A);
+    });
+
+    render4AImageInputFields();
 
     syncQuestionCountControl();
   }
 
   function getEnforcedQuestionCount() {
+    if (currentSection === '4A' && is4ATraceType(currentType)) return 2;
+
     const isTypeE = !combineTypes && currentType === 'E';
     if (isTypeE) return 16;
 
@@ -1113,9 +1429,13 @@
   }
 
   function selectSection(el, sectionName) {
+    sync4AImageCacheFromDOM();
+
     document.querySelectorAll('.section-btn').forEach(btn => btn.classList.remove('active'));
     el.classList.add('active');
     currentSection = sectionName;
+    combineTypes = false;
+    setCombineButtonState(false);
     syncLevelFieldWithSection(currentSection);
 
     updateSectionUI();
@@ -1126,17 +1446,41 @@
     } else if (currentSection === '2A8' && currentType !== 'E') {
       const typeECard = document.querySelector('.type-card[data-type="E"]');
       if (typeECard) selectType(typeECard, 'E');
+    } else if (currentSection === '4A' && !is4ATraceType(currentType)) {
+      const default4ACard = document.querySelector('.type-card[data-type="4A1"]');
+      if (default4ACard) selectType(default4ACard, '4A1');
+    } else if (currentSection === '4A' && is4ATraceType(currentType)) {
+      const traceNumber = getTraceNumberFromCurrentType();
+      const titleInput = document.getElementById('wsTitle');
+      const levelInput = document.getElementById('wsLevel');
+
+      if (titleInput) titleInput.value = 'Number Tracing';
+      if (levelInput && traceNumber) {
+        levelInput.value = `4A${traceNumber}`;
+        lastAutoLevel = levelInput.value;
+      }
+
+      render4AImageInputFields();
     }
   }
 
   function selectType(el, t) {
+    sync4AImageCacheFromDOM();
+
     document.querySelectorAll('.type-card').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     currentType = t;
     combineTypes = false;
     setCombineButtonState(false);
 
-    currentSection = t === 'E' ? '2A8' : '3A3I';
+    if (t === 'E') {
+      currentSection = '2A8';
+    } else if (is4ATraceType(t)) {
+      currentSection = '4A';
+    } else {
+      currentSection = '3A3I';
+    }
+
     syncLevelFieldWithSection(currentSection);
     setActiveSectionButton(currentSection);
     updateSectionUI();
@@ -1147,6 +1491,19 @@
         titleInput.value = 'Add';
       }
 
+      syncQuestionCountControl();
+    } else if (is4ATraceType(t)) {
+      const titleInput = document.getElementById('wsTitle');
+      if (titleInput) titleInput.value = 'Number Tracing';
+
+      const levelInput = document.getElementById('wsLevel');
+      const traceNumber = getTraceNumberFromCurrentType();
+      if (levelInput && traceNumber) {
+        levelInput.value = `4A${traceNumber}`;
+        lastAutoLevel = levelInput.value;
+      }
+
+      render4AImageInputFields();
       syncQuestionCountControl();
     } else {
       syncQuestionCountControl();
@@ -1275,6 +1632,73 @@
     const levelLabel = (levelRaw || '').trim() || currentSection;
     const showName = document.getElementById('chkName').checked;
     const showDate = document.getElementById('chkDate').checked;
+
+    const is4AMode = currentSection === '4A' && is4ATraceType(currentType);
+    if (is4AMode) {
+      const traceNumber = getTraceNumberFromCurrentType();
+      if (!traceNumber || !window.WORKSHEET_4A || typeof window.WORKSHEET_4A.buildWorksheetData !== 'function') {
+        if (!silent) alert('4A tracing module is not available.');
+        return null;
+      }
+
+      sync4AImageCacheFromDOM();
+      const cacheKey = `4A${traceNumber}`;
+      const traceData = window.WORKSHEET_4A.buildWorksheetData({
+        traceNumber,
+        imageValues: traceImageUrlCache[cacheKey] || []
+      });
+
+      const tracingTitle = traceData.activityName || 'Number Tracing';
+      const tracingCode = traceData.worksheetCode || cacheKey;
+      const tracingInstruction = traceData.instructionText || 'Trace the number.';
+      const questionsHtml = traceData.questionsHtml || '';
+
+      const fields = `
+        ${showName ? `
+          <div class="ws-fill-line"><span>First Name:</span><span class="dots"></span></div>
+          <div class="ws-fill-line"><span>Last Name:</span><span class="dots"></span></div>
+        ` : ''}
+        <div class="ws-fill-line"><span>GeniusBees ID:</span><span class="dots"></span></div>
+        ${showDate ? `<div class="ws-fill-line"><span>Date:</span><span class="dots"></span></div>` : ''}
+      `;
+
+      return `
+        <div class="ws-page type-4a-layout" id="wsPage">
+          <div class="ws-header-bar">
+            <div class="ws-brand-column">
+              <div class="ws-brand-logo-wrap">
+                <img class="ws-brand-logo" src="${WORKSHEET_LOGO_SRC}" alt="GeniusBees"/>
+              </div>
+            </div>
+
+            <div class="ws-center-column">
+              <div class="ws-main-title">WORK<span class="muted">SHEET</span></div>
+              <div class="ws-meta-line ws-level-line">English Level:${tracingCode}</div>
+              <div class="ws-meta-line">Activity: ${tracingTitle}</div>
+            </div>
+
+            <div class="ws-right-column">${fields}</div>
+          </div>
+
+          <div class="ws-instruction">${tracingInstruction}</div>
+
+          <div class="ws-questions ws-questions-default">
+            ${questionsHtml}
+          </div>
+
+          <div class="ws-footer">
+            <span class="ws-footer-left"></span>
+            <span>Page: 1</span>
+          </div>
+
+          <div class="ws-bottom-contact">
+            <div class="ws-bottom-contact-line"><span class="u">www.geniusbees.com</span></div>
+            <div class="ws-bottom-contact-line"><span class="u">info@geniusbees.com</span></div>
+            <div class="ws-bottom-contact-line">Copyright © 2025 <span class="u">GeniusBees</span> Inc. All rights reserved</div>
+          </div>
+        </div>
+      `;
+    }
 
     if (end <= start) {
       if (!silent) alert('End number must be greater than start number.');
@@ -1539,6 +1963,20 @@
   .ws-kid-svg { width: 98px; height: 30px; }
   .ws-bottom-contact { margin-top: 8px; padding-top: 6px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 10px; line-height: 1.35; color: #4b5563; }
   .ws-bottom-contact-line .u { text-decoration: underline; }
+  .trace4a-questions { height: 100%; display: grid; grid-template-rows: 1fr 1fr; gap: 10px; align-content: stretch; }
+  .trace4a-question { border: 1.5px solid #fdba74; border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 8px; min-height: 0; background: #ffffff; }
+  .trace4a-code { align-self: flex-end; font-size: 11px; font-weight: 700; color: #6b7280; letter-spacing: 0.02em; }
+  .trace4a-image-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: 6px; }
+  .trace4a-image-tile { height: 48px; border: 1.5px dashed #fdba74; border-radius: 8px; overflow: hidden; background: #fff7ed; display: flex; align-items: center; justify-content: center; }
+  .trace4a-image { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .trace4a-image-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #9a3412; background: #ffedd5; text-transform: uppercase; letter-spacing: 0.03em; }
+  .trace4a-body { flex: 1; min-height: 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  .trace4a-left { flex: 1; min-width: 0; }
+  .trace4a-caption { font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 4px; }
+  .trace4a-word { font-size: 16px; color: #374151; margin-left: 10px; margin-bottom: 2px; text-transform: lowercase; }
+  .trace4a-digit { font-family: 'Nunito', sans-serif; font-size: 82px; line-height: 0.95; font-weight: 800; color: #111827; }
+  .trace4a-template { width: 126px; height: 126px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.25); }
+  .trace4a-template-digit { font-family: 'Nunito', sans-serif; font-size: 86px; line-height: 1; font-weight: 800; color: rgba(255,255,255,0.95); -webkit-text-stroke: 1.5px rgba(17,24,39,0.35); text-shadow: 0 0 0 rgba(17,24,39,0.4); }
 </style>
 </head><body>${html}</body></html>`);
     w.document.close();
