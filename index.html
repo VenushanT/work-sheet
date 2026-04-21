@@ -801,6 +801,14 @@
       color: var(--gray-700);
       margin-bottom: 4px;
     }
+    .trace4a-global-hint {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-600);
+      margin-top: -10px;
+      margin-bottom: 10px;
+      letter-spacing: 0.01em;
+    }
     .trace4a-word {
       font-size: 16px;
       color: var(--gray-700);
@@ -823,7 +831,39 @@
       align-items: center;
       justify-content: center;
       flex: 0 0 auto;
+      position: relative;
+      overflow: hidden;
       box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.25);
+    }
+    .trace4a-template-guide {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .trace4a-start-dot,
+    .trace4a-end-star {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .trace4a-start-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 0 1.5px rgba(255,255,255,0.92), 0 0 0 2px rgba(31,41,55,0.22);
+    }
+    .trace4a-end-star {
+      width: 11px;
+      height: 11px;
+      font-size: 10px;
+      color: #fde047;
+      text-shadow: 0 0 0 1px rgba(17,24,39,0.45), 0 1px 1px rgba(17,24,39,0.5);
     }
     .trace4a-template-digit {
       font-family: 'Nunito', sans-serif;
@@ -833,6 +873,8 @@
       color: rgba(255,255,255,0.95);
       -webkit-text-stroke: 2px rgba(17,24,39,0.35);
       text-shadow: 0 0 0 rgba(17,24,39,0.4);
+      position: relative;
+      z-index: 2;
     }
 
     /* ── RESPONSIVE STYLES ── */
@@ -1654,6 +1696,7 @@
       const tracingTitle = traceData.activityName || 'Number Tracing';
       const tracingCode = traceData.worksheetCode || cacheKey;
       const tracingInstruction = traceData.instructionText || 'Trace the number.';
+      const tracingHint = (traceData.hintText || '').trim();
       const questionsHtml = traceData.questionsHtml || '';
 
       const fields = `
@@ -1684,6 +1727,7 @@
           </div>
 
           <div class="ws-instruction">${tracingInstruction}</div>
+          ${tracingHint ? `<div class="trace4a-global-hint">Hint: ${tracingHint}</div>` : ''}
 
           <div class="ws-questions ws-questions-default">
             ${questionsHtml}
@@ -1976,10 +2020,15 @@
   .trace4a-body { flex: 1; min-height: 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; }
   .trace4a-left { flex: 1; min-width: 0; }
   .trace4a-caption { font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 4px; }
+  .trace4a-global-hint { font-size: 11px; font-weight: 700; color: #4b5563; margin-top: -10px; margin-bottom: 10px; letter-spacing: 0.01em; }
   .trace4a-word { font-size: 16px; color: #374151; margin-left: 10px; margin-bottom: 2px; text-transform: lowercase; }
   .trace4a-digit { font-family: 'Nunito', sans-serif; font-size: 124px; line-height: 0.88; font-weight: 800; color: #111827; }
-  .trace4a-template { width: 172px; height: 172px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.25); }
-  .trace4a-template-digit { font-family: 'Nunito', sans-serif; font-size: 132px; line-height: 1; font-weight: 800; color: rgba(255,255,255,0.95); -webkit-text-stroke: 2px rgba(17,24,39,0.35); text-shadow: 0 0 0 rgba(17,24,39,0.4); }
+  .trace4a-template { width: 172px; height: 172px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; position: relative; overflow: hidden; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.25); }
+  .trace4a-template-guide { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+  .trace4a-start-dot, .trace4a-end-star { position: absolute; transform: translate(-50%, -50%); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; line-height: 1; }
+  .trace4a-start-dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 0 1.5px rgba(255,255,255,0.92), 0 0 0 2px rgba(31,41,55,0.22); }
+  .trace4a-end-star { width: 11px; height: 11px; font-size: 10px; color: #fde047; text-shadow: 0 0 0 1px rgba(17,24,39,0.45), 0 1px 1px rgba(17,24,39,0.5); }
+  .trace4a-template-digit { font-family: 'Nunito', sans-serif; font-size: 132px; line-height: 1; font-weight: 800; color: rgba(255,255,255,0.95); -webkit-text-stroke: 2px rgba(17,24,39,0.35); text-shadow: 0 0 0 rgba(17,24,39,0.4); position: relative; z-index: 2; }
 </style>
 </head><body>${html}</body></html>`);
     w.document.close();
