@@ -160,7 +160,7 @@
             <span class="trace-image-label">Q${questionIndex + 1} Image ${slot + 1}</span>
             <input
               type="url"
-              class="field-input field-input-wide trace-image-url"
+              class="field-input trace-image-url"
               data-image-index="${flatIndex}"
               data-question-index="${questionIndex}"
               data-slot-index="${slot}"
