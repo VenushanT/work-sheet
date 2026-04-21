@@ -115,7 +115,13 @@
     .btn-primary:active { transform: translateY(0); }
 
     /* ── LAYOUT ── */
-    .container { display: flex; height: calc(100vh - 60px); min-height: calc(100vh - 60px); position: relative; }
+    .container {
+      display: flex;
+      height: calc(100vh - 60px);
+      min-height: calc(100vh - 60px);
+      position: relative;
+      --sidebar-width: 300px;
+    }
     .container.sidebar-collapsed .sidebar {
       width: 0;
       min-width: 0;
@@ -131,6 +137,7 @@
       width: 100%;
       flex: 1;
     }
+    .container.sidebar-collapsed .sidebar-resizer { display: none; }
 
     .sidebar-restore-btn {
       position: absolute;
@@ -143,8 +150,8 @@
 
     /* ── SIDEBAR ── */
     .sidebar {
-      width: 300px;
-      min-width: 300px;
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
       background: var(--white);
       border-right: 1px solid var(--gray-200);
       overflow-y: auto;
@@ -161,6 +168,30 @@
     }
     .sidebar::-webkit-scrollbar { width: 4px; }
     .sidebar::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 4px; }
+
+    .sidebar-resizer {
+      width: 10px;
+      flex: 0 0 10px;
+      cursor: col-resize;
+      position: relative;
+      background: transparent;
+      transition: background 0.15s ease;
+    }
+    .sidebar-resizer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 4px;
+      width: 2px;
+      background: var(--gray-300);
+      border-radius: 2px;
+      transition: background 0.15s ease;
+    }
+    .sidebar-resizer:hover::before,
+    .sidebar-resizer.dragging::before {
+      background: var(--orange-600);
+    }
 
     .card {
       background: var(--white);
@@ -183,6 +214,9 @@
       margin-bottom: 10px;
     }
     .field-row:last-child { margin-bottom: 0; }
+    .field-row > .field-label {
+      flex: 0 0 auto;
+    }
     .field-label { font-size: 13px; color: var(--gray-600); font-weight: 500; }
     .field-input {
       width: 80px;
@@ -204,7 +238,21 @@
       background: white;
     }
     .field-input-wide {
-      width: 140px;
+      width: auto;
+      flex: 1 1 140px;
+      min-width: 0;
+      text-align: left;
+      padding-left: 10px;
+    }
+    .field-input-full {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      text-align: left;
+      padding-left: 10px;
+    }
+    .field-input-full {
+      width: 100%;
       text-align: left;
       padding-left: 10px;
     }
@@ -267,6 +315,7 @@
     .section-btn:hover { border-color: var(--orange-600); background: var(--orange-50); }
     .section-btn.active { border-color: var(--orange-700); background: #ffedd5; color: var(--orange-800); }
     .is-hidden { display: none !important; }
+    .search-hidden { display: none !important; }
 
     .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .type-grid-single { grid-template-columns: 1fr; }
@@ -986,6 +1035,8 @@
         max-height: none;
       }
 
+      .sidebar-resizer { display: none; }
+
       .preview-area {
         padding: 1rem;
       }
@@ -1174,6 +1225,20 @@
       <button class="btn btn-outline btn-icon" id="btnSidebarToggle" onclick="toggleSidebar()" title="Minimize Sidebar" aria-label="Minimize Sidebar">◀</button>
     </div>
 
+    <div class="card">
+      <div class="card-title">Search Worksheet</div>
+      <input
+        type="text"
+        class="field-input field-input-full"
+        id="worksheetSearch"
+        placeholder="Search by section or type"
+        oninput="onWorksheetSearchInput()"
+      />
+      <div class="type-desc is-hidden" id="worksheetSearchEmpty" style="margin-top:8px;">
+        No matching worksheet options.
+      </div>
+    </div>
+
     <!-- General Settings -->
     <div class="card">
       <div class="card-title">General</div>
@@ -1233,7 +1298,7 @@
       <div class="card-title">2A8 Variations</div>
       <div class="type-grid type-grid-single" id="typeGridSpecial">
         <div class="type-card" data-type="E" onclick="selectType(this,'E')">
-          <span class="type-badge">Type E</span>
+          <span class="type-badge">Type A</span>
           <div class="type-desc">Addition format like workbook questions</div>
         </div>
       </div>
@@ -1337,7 +1402,7 @@
         <span class="field-label">End number</span>
         <input type="number" class="field-input" id="rangeEnd" value="70" min="1" max="9999"/>
       </div>
-      <div class="field-row">
+      <div class="field-row" id="perRowRow">
         <span class="field-label">Numbers per row</span>
         <input type="number" class="field-input" id="perRow" value="10" min="4" max="20"/>
       </div>
@@ -1359,7 +1424,7 @@
         <input type="number" class="field-input" id="trace4AQCount" value="2" readonly/>
       </div>
       <div class="field-row type-e-only is-hidden">
-        <span class="field-label">Add value (Type E)</span>
+        <span class="field-label">Add value (Type A)</span>
         <input type="number" class="field-input" id="eqAddend" value="3" min="0" max="99"/>
       </div>
       <div class="field-row type-e-only is-hidden">
@@ -1377,6 +1442,8 @@
     <button class="btn-print btn-print-exact" onclick="printWorksheet(true)">Print Exact Colors</button>
 
   </aside>
+
+  <div class="sidebar-resizer" id="sidebarResizer" role="separator" aria-label="Resize sidebar" aria-orientation="vertical"></div>
 
   <button class="btn btn-outline btn-icon sidebar-restore-btn" id="btnSidebarRestore" onclick="toggleSidebar(false)" title="Show Sidebar" aria-label="Show Sidebar">▶</button>
 
@@ -1404,6 +1471,9 @@
   let sidebarMinimized = false;
   let lastAutoLevel = '3A3I';
   let combineTypes = false;
+  let isSidebarResizing = false;
+  const SIDEBAR_MIN_WIDTH = 250;
+  const SIDEBAR_MAX_WIDTH = 640;
   const ALL_TYPES = ['A', 'B', 'C', 'D'];
   const WORKSHEET_LOGO_SRC = 'https://www.geniusbees.com/assets/icons/gb-logo.svg';
   const WORKSHEET_LEVELS = (typeof window.WORKSHEET_LEVELS_CONFIG === 'object' && window.WORKSHEET_LEVELS_CONFIG) ? window.WORKSHEET_LEVELS_CONFIG : {};
@@ -1469,6 +1539,105 @@
     });
   }
 
+  function setSidebarWidth(widthPx) {
+    const sidebar = document.querySelector('.sidebar');
+    const container = document.querySelector('.container');
+    if (!sidebar || !container) return;
+
+    const clamped = Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, Math.round(widthPx)));
+    container.style.setProperty('--sidebar-width', `${clamped}px`);
+    sidebar.style.width = `${clamped}px`;
+    sidebar.style.minWidth = `${clamped}px`;
+  }
+
+  function startSidebarResize(event) {
+    if (sidebarMinimized) return;
+    if (window.innerWidth <= 1100) return;
+
+    isSidebarResizing = true;
+    const resizer = document.getElementById('sidebarResizer');
+    if (resizer) resizer.classList.add('dragging');
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    event.preventDefault();
+  }
+
+  function moveSidebarResize(event) {
+    if (!isSidebarResizing) return;
+
+    const container = document.querySelector('.container');
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+    const desiredWidth = event.clientX - rect.left;
+    setSidebarWidth(desiredWidth);
+  }
+
+  function stopSidebarResize() {
+    if (!isSidebarResizing) return;
+
+    isSidebarResizing = false;
+    const resizer = document.getElementById('sidebarResizer');
+    if (resizer) resizer.classList.remove('dragging');
+
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }
+
+  function initializeSidebarResize() {
+    const resizer = document.getElementById('sidebarResizer');
+    if (!resizer) return;
+
+    resizer.addEventListener('mousedown', startSidebarResize);
+    window.addEventListener('mousemove', moveSidebarResize);
+    window.addEventListener('mouseup', stopSidebarResize);
+  }
+
+  function normalizeSearchText(value) {
+    return String(value ?? '').trim().toLowerCase();
+  }
+
+  function applyWorksheetSearchFilter() {
+    const searchInput = document.getElementById('worksheetSearch');
+    const emptyState = document.getElementById('worksheetSearchEmpty');
+    const query = normalizeSearchText(searchInput?.value);
+    const hasQuery = query.length > 0;
+
+    let sectionMatchCount = 0;
+    document.querySelectorAll('#sectionGrid .section-btn').forEach(btn => {
+      const matches = !hasQuery || normalizeSearchText(btn.textContent).includes(query);
+      btn.classList.toggle('search-hidden', !matches);
+      if (matches) sectionMatchCount += 1;
+    });
+
+    let typeMatchCount = 0;
+    document.querySelectorAll('.type-card').forEach(card => {
+      const typeCode = normalizeSearchText(card.dataset.type);
+      const cardText = normalizeSearchText(card.textContent);
+      const matches = !hasQuery || cardText.includes(query) || `type ${typeCode}`.includes(query);
+      card.classList.toggle('search-hidden', !matches);
+      if (matches) typeMatchCount += 1;
+    });
+
+    ['card3A3I', 'card2A8', 'card4A121', 'card4A'].forEach(cardId => {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+
+      const hasVisibleTypes = card.querySelectorAll('.type-card:not(.search-hidden)').length > 0;
+      card.classList.toggle('search-hidden', hasQuery && !hasVisibleTypes);
+    });
+
+    if (emptyState) {
+      const hasMatches = sectionMatchCount > 0 || typeMatchCount > 0;
+      emptyState.classList.toggle('is-hidden', !hasQuery || hasMatches);
+    }
+  }
+
+  function onWorksheetSearchInput() {
+    applyWorksheetSearchFilter();
+  }
+
   function getConfiguredLevelForSection(sectionName) {
     const sectionLevels = WORKSHEET_LEVELS.sectionLevels;
     if (!sectionLevels || typeof sectionLevels !== 'object') return sectionName;
@@ -1491,14 +1660,7 @@
       return window.WORKSHEET_4A121.getConfiguredImageForSection(sectionName);
     }
 
-    const sectionImages = WORKSHEET_IMAGES.sectionImages;
-    if (!sectionImages || typeof sectionImages !== 'object') return '';
-
-    const rawValue = sectionImages[sectionName];
-    if (typeof rawValue !== 'string') return '';
-
-    const trimmed = rawValue.trim();
-    return /^https?:\/\//i.test(trimmed) ? trimmed : '';
+    return '';
   }
 
   function getConfiguredPromptForSection(sectionName) {
@@ -1506,12 +1668,7 @@
       return window.WORKSHEET_4A121.getConfiguredPromptForSection(sectionName);
     }
 
-    const sectionPrompts = WORKSHEET_IMAGES.sectionPrompts;
-    if (!sectionPrompts || typeof sectionPrompts !== 'object') return '';
-
-    const rawValue = sectionPrompts[sectionName];
-    if (typeof rawValue !== 'string') return '';
-    return rawValue.trim();
+    return '';
   }
 
   function getConfiguredGridForSection(sectionName) {
@@ -1519,20 +1676,7 @@
       return window.WORKSHEET_4A121.getConfiguredGridForSection(sectionName);
     }
 
-    const sectionGrid = WORKSHEET_IMAGES.sectionGrid;
-    if (!sectionGrid || typeof sectionGrid !== 'object') {
-      return { count: 15, perRow: 5 };
-    }
-
-    const rawGrid = sectionGrid[sectionName];
-    if (!rawGrid || typeof rawGrid !== 'object') {
-      return { count: 15, perRow: 5 };
-    }
-
-    return {
-      count: parseBoundedInt(rawGrid.count, 15, 1, 40),
-      perRow: parseBoundedInt(rawGrid.perRow, 5, 1, 8)
-    };
+    return { count: 15, perRow: 5 };
   }
 
   function getSuitable4A121GridRange(perRowValue) {
@@ -1644,6 +1788,12 @@
       restoreBtn.setAttribute('title', 'Show Sidebar');
       restoreBtn.setAttribute('aria-label', 'Show Sidebar');
     }
+
+    if (!sidebarMinimized) {
+      const sidebar = document.querySelector('.sidebar');
+      const fallbackWidth = parseInt(sidebar?.style.width || sidebar?.offsetWidth || 300, 10);
+      if (Number.isFinite(fallbackWidth)) setSidebarWidth(fallbackWidth);
+    }
   }
 
   function syncLevelFieldWithSection(sectionName, force = false) {
@@ -1708,6 +1858,7 @@
     }
 
     render4AImageInputFields();
+    applyWorksheetSearchFilter();
 
     syncQuestionCountControl();
   }
@@ -1841,7 +1992,6 @@
       if (titleInput && (!titleInput.value || titleInput.value === 'Write the numbers' || titleInput.value === 'Add' || titleInput.value === 'Number Tracing')) {
         titleInput.value = defaultPrompt;
       }
-
       initializeSectionImageInputs();
       syncQuestionCountControl();
     } else if (is4ATraceType(t)) {
@@ -1964,6 +2114,8 @@
     const levelLabel = (levelRaw || '').trim() || currentSection;
     const showName = document.getElementById('chkName').checked;
     const showDate = document.getElementById('chkDate').checked;
+    const isTypeE = !combineTypes && currentType === 'E';
+    const isTypeF = !combineTypes && currentType === 'F';
 
     const is4AMode = currentSection === '4A' && is4ATraceType(currentType);
     if (is4AMode) {
@@ -2034,9 +2186,6 @@
       `;
     }
 
-    const isTypeE = !combineTypes && currentType === 'E';
-    const isTypeF = !combineTypes && currentType === 'F';
-
     if (!isTypeE && !isTypeF && end <= start) {
       if (!silent) alert('End number must be greater than start number.');
       return null;
@@ -2087,7 +2236,7 @@
 
           <div class="ws-center-column">
             <div class="ws-main-title">WORK<span class="muted">SHEET</span></div>
-            <div class="ws-meta-line ws-level-line">English Level:${levelLabel}</div>
+            <div class="ws-meta-line ws-level-line">Level: ${levelLabel}</div>
             <div class="ws-meta-line">Activity: ${title}</div>
           </div>
 
@@ -2161,6 +2310,8 @@
   }
 
   function resolveQuestionCountForA4(requestedCount) {
+    if (!combineTypes && currentType === 'F') return 1;
+
     const enforcedCount = getEnforcedQuestionCount();
     if (enforcedCount !== null) return enforcedCount;
 
@@ -2250,6 +2401,16 @@
   .ws-questions-default .q-block { margin-bottom: 0; }
   .ws-questions-e { display: flex; }
   .ws-questions-e .equation-grid { width: 100%; }
+  .ws-questions-f { display: flex; align-items: stretch; }
+  .ws-image-question { width: 100%; display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+  .ws-image-prompt { font-size: 28px; font-weight: 700; color: #111827; line-height: 1.2; }
+  .ws-image-frame { flex: 1; min-height: 0; border: 2px solid #fdba74; border-radius: 12px; padding: 12px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #fff7ed; }
+  .ws-image-frame > img { width: 100%; max-height: 150mm; object-fit: contain; object-position: center; border-radius: 8px; background: white; }
+  .ws-image-missing { width: 100%; min-height: 90mm; border: 2px dashed #fb923c; border-radius: 10px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; color: #9a3412; font-size: 13px; font-weight: 600; line-height: 1.4; background: #fff; }
+  .ws-image-grid { width: 100%; display: grid; justify-content: center; align-content: center; gap: 14px 12px; padding: 2px 2px 98px; }
+  .ws-image-item { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: contain; object-position: center; display: block; border-radius: 6px; }
+  .ws-answer-box-row { display: flex; justify-content: flex-end; position: absolute; right: 12px; bottom: 12px; z-index: 2; }
+  .ws-answer-box { width: 84px; height: 84px; border: 3px solid #4b5563; border-radius: 14px; background: white; }
   .q-block { margin-bottom: 24px; }
   .q-num { font-size: 13px; font-weight: 700; color: #9ca3af; margin-bottom: 8px; }
   .num-row { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
@@ -2320,8 +2481,11 @@
   }
 
   // Auto generate on load
+  initializeSidebarResize();
+  initializeSectionImageInputs();
   syncLevelFieldWithSection(currentSection, true);
   updateSectionUI();
+  applyWorksheetSearchFilter();
   syncQuestionCountControl();
   generateWorksheet();
 </script>
