@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Number Worksheet Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #7c3aed;
+      --purple-light: #ede9fe;
+      --purple-dark: #5b21b6;
+      --orange-200: #fed7aa;
+      --orange-300: #fdba74;
+      --orange-400: #fb923c;
+      --orange-500: #f97316;
+      --orange-600: #ea580c;
+      --orange-700: #c2410c;
+      --orange-800: #9a3412;
+      --orange-50: #fff7ed;
+      --blue: #2563eb;
+      --blue-light: #dbeafe;
+      --amber: #d97706;
+      --amber-light: #fef3c7;
+      --green: #059669;
+      --green-light: #d1fae5;
+      --pink: #db2777;
+      --pink-light: #fce7f3;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --white: #ffffff;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 20px rgba(0,0,0,0.08);
+      --shadow-md: 0 8px 30px rgba(0,0,0,0.12);
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f4ff;
+      min-height: 100vh;
+      color: var(--gray-800);
+    }
+
+    /* ── TOP NAV ── */
+    header {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--orange-800);
+    }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--orange-800);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+    .btn { padding: 8px 18px; border-radius: var(--radius-sm); font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-icon {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      line-height: 1;
+      border-radius: 10px;
+      flex: 0 0 auto;
+    }
+    .btn-outline { background: var(--orange-600); border: 1.5px solid var(--orange-700); color: white; }
+    .btn-outline:hover { border-color: var(--orange-800); color: white; background: var(--orange-700); box-shadow: 0 4px 12px rgba(234,88,12,0.35); }
+    .btn-exact {
+      background: #0ea5e9;
+      border: 1.5px solid #0284c7;
+      color: white;
+    }
+    .btn-exact:hover {
+      border-color: #0369a1;
+      background: #0284c7;
+      color: white;
+      box-shadow: 0 4px 12px rgba(14,165,233,0.35);
+    }
+    .btn-primary { background: var(--orange-600); color: white; }
+    .btn-primary:hover { background: var(--orange-700); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(234,88,12,0.35); }
+    .btn-primary:active { transform: translateY(0); }
+
+    /* ── LAYOUT ── */
+    .container { display: flex; height: calc(100vh - 60px); min-height: calc(100vh - 60px); position: relative; }
+    .container.sidebar-collapsed .sidebar {
+      width: 0;
+      min-width: 0;
+      padding: 0;
+      border-right: none;
+      border-bottom: none;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .container.sidebar-collapsed .sidebar > * { display: none; }
+    .container.sidebar-collapsed .preview-area {
+      width: 100%;
+      flex: 1;
+    }
+
+    .sidebar-restore-btn {
+      position: absolute;
+      top: 12px;
+      left: 10px;
+      z-index: 40;
+      display: none;
+    }
+    .container.sidebar-collapsed .sidebar-restore-btn { display: inline-flex; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 300px;
+      min-width: 300px;
+      background: var(--white);
+      border-right: 1px solid var(--gray-200);
+      overflow-y: auto;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: width 0.22s ease, min-width 0.22s ease, padding 0.22s ease, opacity 0.18s ease;
+    }
+    .sidebar-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: -2px;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 4px; }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--orange-200);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .card-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-400);
+      margin-bottom: 12px;
+    }
+    .field-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .field-row:last-child { margin-bottom: 0; }
+    .field-label { font-size: 13px; color: var(--gray-600); font-weight: 500; }
+    .field-input {
+      width: 80px;
+      text-align: center;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      padding: 5px 8px;
+      border: 1.5px solid var(--orange-300);
+      border-radius: var(--radius-sm);
+      color: var(--gray-800);
+      background: var(--gray-50);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field-input:focus {
+      outline: none;
+      border-color: var(--orange-500);
+      box-shadow: 0 0 0 3px rgba(251,146,60,0.2);
+      background: white;
+    }
+    .field-input-wide {
+      width: 140px;
+      text-align: left;
+      padding-left: 10px;
+    }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .toggle {
+      position: relative;
+      width: 40px; height: 22px;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: var(--orange-400);
+      border: 1.5px solid var(--orange-500);
+      border-radius: 22px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 16px; height: 16px;
+      left: 3px; bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .toggle input:checked + .toggle-slider {
+      background: var(--orange-700);
+      border-color: var(--orange-700);
+    }
+    .toggle input:focus + .toggle-slider { box-shadow: 0 0 0 3px rgba(234,88,12,0.22); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+    /* ── SECTION + TYPE CARDS ── */
+    .section-grid { display: flex; gap: 8px; }
+    .section-btn {
+      width: 100%;
+      border: 2px solid var(--orange-200);
+      background: var(--gray-50);
+      color: var(--gray-700);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .section-btn:hover { border-color: var(--orange-600); background: var(--orange-50); }
+    .section-btn.active { border-color: var(--orange-700); background: #ffedd5; color: var(--orange-800); }
+    .is-hidden { display: none !important; }
+
+    .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .type-grid-single { grid-template-columns: 1fr; }
+    .type-card {
+      padding: 10px;
+      border: 2px solid var(--orange-200);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--gray-50);
+    }
+    .type-card:hover { border-color: var(--orange-600); background: var(--orange-50); }
+    .type-card.active { border-color: var(--orange-700); background: #ffedd5; }
+    .type-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-bottom: 4px;
+    }
+    .type-card.active .type-badge { background: var(--orange-700); color: white; }
+    .type-card:not(.active) .type-badge { background: var(--gray-200); color: var(--gray-600); }
+    .type-desc { font-size: 11px; color: var(--gray-600); line-height: 1.4; }
+    .type-card.active .type-desc { color: var(--orange-800); }
+
+    /* ── GENERATE BTN ── */
+    .btn-generate {
+      width: 100%;
+      padding: 11px;
+      background: var(--orange-600);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.02em;
+    }
+    .btn-generate:hover { background: var(--orange-700); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(234,88,12,0.35); }
+    .btn-print {
+      width: 100%;
+      padding: 9px;
+      background: var(--orange-600);
+      color: white;
+      border: 1.5px solid var(--orange-700);
+      border-radius: var(--radius);
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 8px;
+    }
+    .btn-print:hover { border-color: var(--orange-800); color: white; background: var(--orange-700); box-shadow: 0 6px 18px rgba(234,88,12,0.35); }
+    .btn-print-exact {
+      background: #0ea5e9;
+      border-color: #0284c7;
+      color: white;
+    }
+    .btn-print-exact:hover {
+      border-color: #0369a1;
+      background: #0284c7;
+      color: white;
+      box-shadow: 0 6px 18px rgba(14,165,233,0.35);
+    }
+
+    .btn-combine {
+      width: 100%;
+      padding: 9px;
+      background: var(--orange-600);
+      color: white;
+      border: 1.5px solid var(--orange-700);
+      border-radius: var(--radius);
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 8px;
+    }
+    .btn-combine:hover { border-color: var(--orange-800); background: var(--orange-700); color: white; box-shadow: 0 6px 18px rgba(234,88,12,0.35); }
+    .btn-combine.active {
+      background: var(--orange-800);
+      border-color: #7c2d12;
+      color: white;
+      box-shadow: 0 6px 18px rgba(249,115,22,0.35);
+    }
+
+    /* ── PREVIEW AREA ── */
+    .preview-area {
+      flex: 1;
+      overflow: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      background: #e8edf5;
+    }
+    .preview-area::-webkit-scrollbar { width: 6px; }
+    .preview-area::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 6px; }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-400);
+      gap: 12px;
+      text-align: center;
+    }
+    .empty-icon {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      border: 1px dashed var(--gray-300);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+    }
+    .empty-state p { font-size: 14px; max-width: 220px; line-height: 1.6; }
+
+    /* ── WORKSHEET PAGE ── */
+    .ws-page {
+      background: white;
+      width: 210mm;
+      max-width: 100%;
+      min-height: 297mm;
+      padding: 12mm;
+      margin: 0 auto;
+      box-shadow: var(--shadow-md);
+      border-radius: 4px;
+      font-family: 'Nunito', sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+    .ws-header-bar {
+      display: flex;
+      align-items: stretch;
+      border-bottom: 1.5px solid #1f2937;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      font-family: 'Nunito', sans-serif;
+    }
+    .ws-brand-column {
+      width: 225px;
+      border-right: 1.2px solid #9ca3af;
+      padding-right: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+    }
+    .ws-brand-logo-wrap {
+      min-height: 84px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ws-brand-logo {
+      width: 100%;
+      max-height: 86px;
+      object-fit: contain;
+      object-position: left center;
+    }
+    .ws-brand-contact {
+      font-size: 9.5px;
+      color: #111827;
+      line-height: 1.35;
+      border-top: 1px solid #d1d5db;
+      padding-top: 5px;
+    }
+    .ws-brand-contact-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      white-space: nowrap;
+    }
+    .ws-brand-contact-line .u { text-decoration: underline; }
+    .ws-brand-copy { margin-top: 1px; }
+
+    .ws-center-column {
+      flex: 1;
+      padding: 2px 12px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+    .ws-main-title {
+      font-family: inherit;
+      font-size: 30px;
+      letter-spacing: 0.01em;
+      line-height: 0.95;
+      color: #000000;
+    }
+    .ws-main-title .muted { color: #000000; }
+    .ws-meta-line {
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.15;
+    }
+    .ws-level-line {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .ws-right-column {
+      width: 230px;
+      padding-left: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+    .ws-fill-line {
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    .ws-fill-line .dots {
+      flex: 1;
+      border-bottom: 1.8px dotted #111827;
+      height: 0;
+      min-width: 70px;
+    }
+    .ws-instruction { font-size: 14px; color: var(--gray-700); font-weight: 600; margin-bottom: 18px; }
+    .ws-instruction::before { content: '• '; color: var(--purple); }
+
+    .ws-questions {
+      flex: 1;
+      min-height: 0;
+    }
+    .ws-questions-default {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .ws-questions-default .q-block { margin-bottom: 0; }
+    .ws-questions-e { display: flex; }
+    .ws-questions-e .equation-grid { width: 100%; }
+
+    .q-block { margin-bottom: 24px; }
+    .q-num { font-size: 13px; font-weight: 700; color: var(--gray-500); margin-bottom: 8px; }
+    .num-row { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
+    .num-box {
+      width: 52px; height: 44px;
+      border: 1.5px solid var(--orange-300);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800;
+      font-family: 'Nunito', sans-serif;
+    }
+    .num-blank { border: 2px solid var(--orange-300); background: #fff7ed; }
+    .col-purple { background: #c084fc; color: #3b0764; }
+    .col-blue   { background: #60a5fa; color: #1e3a5f; }
+    .col-amber  { background: #fbbf24; color: #78350f; }
+    .col-green  { background: #34d399; color: #064e3b; }
+    .col-pink   { background: #f472b6; color: #831843; }
+
+    .num-circle {
+      width: 52px; height: 52px;
+      border: 1.5px solid var(--orange-300);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800;
+      font-family: 'Nunito', sans-serif;
+    }
+    .circle-teal   { background: #0e7490; color: #e0f7fa; }
+    .circle-purple { background: #c084fc; color: #3b0764; }
+    .circle-amber  { background: #fbbf24; color: #78350f; }
+    .circle-blank  { border: 2.5px solid var(--orange-300); background: transparent; }
+
+    .ws-footer { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--gray-200); display: flex; justify-content: space-between; font-size: 11px; color: var(--gray-400); }
+    .ws-bottom-contact {
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid var(--gray-200);
+      text-align: center;
+      font-size: 10px;
+      line-height: 1.35;
+      color: var(--gray-600);
+    }
+    .ws-bottom-contact-line .u { text-decoration: underline; }
+
+    .equation-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 26px;
+      row-gap: 8px;
+    }
+    .q-block-equation { margin-bottom: 0; }
+    .equation-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 34px;
+      font-weight: 500;
+      color: #111827;
+      line-height: 1;
+    }
+    .eq-answer-line {
+      display: inline-block;
+      width: 58px;
+      border-bottom: 2px solid #111827;
+      transform: translateY(-3px);
+    }
+
+    .btn-change-q {
+      width: 100%;
+      padding: 8px;
+      background: var(--orange-50);
+      color: var(--orange-800);
+      border: 1.5px solid var(--orange-300);
+      border-radius: var(--radius-sm);
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-change-q:hover { background: #ffedd5; border-color: var(--orange-500); }
+
+    .ws-page.type-e-layout .ws-instruction { margin-bottom: 10px; }
+    .ws-page.type-e-layout .ws-questions-e .equation-grid {
+      flex: 1;
+      align-content: space-between;
+      grid-auto-rows: minmax(0, 1fr);
+      row-gap: 6px;
+    }
+    .ws-page.type-e-layout .q-block-equation {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .ws-page.type-e-layout .q-num { margin-bottom: 4px; }
+    .ws-page.type-e-layout .ws-footer { margin-top: 10px; }
+    .ws-page.type-e-layout .ws-bottom-contact { margin-top: 6px; }
+
+    .ws-page.one-question-layout .ws-questions-default,
+    .ws-page.two-question-layout .ws-questions-default {
+      display: grid;
+      align-content: stretch;
+      gap: 12px;
+    }
+    .ws-page.one-question-layout .ws-questions-default { grid-template-rows: 1fr; }
+    .ws-page.two-question-layout .ws-questions-default { grid-template-rows: 1fr 1fr; }
+    .ws-page.one-question-layout .q-block,
+    .ws-page.two-question-layout .q-block {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin-bottom: 0;
+    }
+    .ws-page.one-question-layout .num-row { gap: 10px; }
+    .ws-page.two-question-layout .num-row { gap: 8px; }
+    .ws-page.one-question-layout .num-box {
+      width: 62px;
+      height: 54px;
+      font-size: 26px;
+      border-width: 2px;
+    }
+    .ws-page.one-question-layout .num-circle {
+      width: 62px;
+      height: 62px;
+      font-size: 26px;
+      border-width: 2px;
+    }
+    .ws-page.two-question-layout .num-box {
+      width: 58px;
+      height: 50px;
+      font-size: 24px;
+      border-width: 2px;
+    }
+    .ws-page.two-question-layout .num-circle {
+      width: 58px;
+      height: 58px;
+      font-size: 24px;
+      border-width: 2px;
+    }
+
+    .ws-footer-left {
+      display: flex;
+      align-items: center;
+      min-height: 28px;
+    }
+    .ws-kid-sticker {
+      display: inline-flex;
+      align-items: center;
+    }
+    .ws-kid-svg {
+      width: 98px;
+      height: 30px;
+    }
+
+    /* ── RESPONSIVE STYLES ── */
+    @media (max-width: 1100px) {
+      header {
+        height: auto;
+        min-height: 60px;
+        padding: 10px 1rem;
+        flex-wrap: wrap;
+      }
+
+      .logo { font-size: 18px; }
+
+      .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .container {
+        flex-direction: column;
+        height: auto;
+        min-height: calc(100vh - 60px);
+      }
+
+      .sidebar {
+        width: 100%;
+        min-width: 0;
+        border-right: none;
+        border-bottom: 1px solid var(--gray-200);
+        max-height: none;
+      }
+
+      .preview-area {
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .section-grid { flex-direction: column; }
+      .type-grid { grid-template-columns: 1fr; }
+
+      .field-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+      }
+
+      .field-input,
+      .field-input-wide {
+        width: 100%;
+      }
+
+      .btn {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      .ws-page {
+        min-height: auto;
+        padding: 9mm;
+      }
+
+      .ws-header-bar {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .ws-brand-column,
+      .ws-right-column {
+        width: 100%;
+        border-right: none;
+        padding: 0;
+      }
+
+      .ws-center-column { padding: 0; }
+      .ws-main-title { font-size: 24px; }
+      .ws-meta-line { font-size: 13px; }
+      .ws-level-line { font-size: 14px; }
+      .ws-fill-line { font-size: 12px; }
+
+      .num-box {
+        width: 46px;
+        height: 40px;
+        font-size: 16px;
+      }
+
+      .num-circle {
+        width: 46px;
+        height: 46px;
+        font-size: 16px;
+      }
+
+      .ws-page.type-e-layout .ws-questions-e .equation-grid {
+        grid-template-columns: 1fr;
+        row-gap: 10px;
+      }
+
+      .ws-page.two-question-layout .num-box {
+        width: 50px;
+        height: 44px;
+        font-size: 19px;
+      }
+
+      .ws-page.one-question-layout .num-box {
+        width: 54px;
+        height: 46px;
+        font-size: 21px;
+      }
+
+      .ws-page.two-question-layout .num-circle {
+        width: 50px;
+        height: 50px;
+        font-size: 19px;
+      }
+
+      .ws-page.one-question-layout .num-circle {
+        width: 54px;
+        height: 54px;
+        font-size: 21px;
+      }
+
+      .ws-kid-svg {
+        width: 84px;
+        height: 26px;
+      }
+
+      .equation-row {
+        font-size: 30px;
+        gap: 8px;
+      }
+
+      .eq-answer-line { width: 50px; }
+    }
+
+    @media (max-width: 480px) {
+      .preview-area { padding: 0.65rem; }
+      .ws-page { padding: 7mm; }
+      .logo { font-size: 16px; }
+      .logo-icon { width: 32px; height: 32px; font-size: 16px; }
+
+      .equation-row {
+        font-size: 26px;
+      }
+
+      .eq-answer-line { width: 44px; }
+    }
+
+    /* ── PRINT STYLES ── */
+    @media print {
+      body { background: white; }
+      header, .sidebar, .preview-area { display: none !important; }
+      .sidebar-restore-btn { display: none !important; }
+      .print-target { display: block !important; }
+      .ws-page {
+        box-shadow: none;
+        border-radius: 0;
+        margin: 0;
+        width: 210mm;
+        min-height: 297mm;
+        padding: 12mm;
+      }
+    }
+    #printTarget { display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">WG</div>
+    Worksheet Generator
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-outline" onclick="generateCombinedWorksheet()">Combine A+B+C+D</button>
+    <button class="btn btn-outline" onclick="printWorksheet()">Print / Save PDF</button>
+    <button class="btn btn-exact" onclick="printWorksheet(true)">Print Exact Colors</button>
+    <button class="btn btn-primary" onclick="generateWorksheet()">Generate</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="sidebar-toolbar">
+      <button class="btn btn-outline btn-icon" id="btnSidebarToggle" onclick="toggleSidebar()" title="Minimize Sidebar" aria-label="Minimize Sidebar">◀</button>
+    </div>
+
+    <!-- General Settings -->
+    <div class="card">
+      <div class="card-title">General</div>
+      <div class="toggle-row">
+        <span class="field-label">Show name fields</span>
+        <label class="toggle"><input type="checkbox" id="chkName" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span class="field-label">Show date field</span>
+        <label class="toggle"><input type="checkbox" id="chkDate" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Page title</span>
+        <input type="text" class="field-input field-input-wide" id="wsTitle" value="Write the numbers"/>
+      </div>
+      <div class="field-row">
+        <span class="field-label">English level</span>
+        <input type="text" class="field-input field-input-wide" id="wsLevel" value="3A3I"/>
+      </div>
+    </div>
+
+    <!-- Worksheet Section -->
+    <div class="card">
+      <div class="card-title">Worksheet Section</div>
+      <div class="section-grid" id="sectionGrid">
+        <button class="section-btn active" type="button" onclick="selectSection(this,'3A3I')">3A3I</button>
+        <button class="section-btn" type="button" onclick="selectSection(this,'2A8')">2A8</button>
+      </div>
+    </div>
+
+    <!-- Question Type -->
+    <div class="card" id="card3A3I">
+      <div class="card-title">3A3I Variations</div>
+      <div class="type-grid" id="typeGrid3A3I">
+        <div class="type-card active" data-type="A" onclick="selectType(this,'A')">
+          <span class="type-badge">Type A</span>
+          <div class="type-desc">Show all numbers, write them below</div>
+        </div>
+        <div class="type-card" data-type="B" onclick="selectType(this,'B')">
+          <span class="type-badge">Type B</span>
+          <div class="type-desc">Fill the first N blanks</div>
+        </div>
+        <div class="type-card" data-type="C" onclick="selectType(this,'C')">
+          <span class="type-badge">Type C</span>
+          <div class="type-desc">Circles with missing spots</div>
+        </div>
+        <div class="type-card" data-type="D" onclick="selectType(this,'D')">
+          <span class="type-badge">Type D</span>
+          <div class="type-desc">Fill the last N blanks</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card is-hidden" id="card2A8">
+      <div class="card-title">2A8 Variations</div>
+      <div class="type-grid type-grid-single" id="typeGridSpecial">
+        <div class="type-card" data-type="E" onclick="selectType(this,'E')">
+          <span class="type-badge">Type E</span>
+          <div class="type-desc">Addition format like workbook questions</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Number Range -->
+    <div class="card">
+      <div class="card-title">Number Range</div>
+      <div class="field-row">
+        <span class="field-label">Start number</span>
+        <input type="number" class="field-input" id="rangeStart" value="31" min="0" max="999"/>
+      </div>
+      <div class="field-row">
+        <span class="field-label">End number</span>
+        <input type="number" class="field-input" id="rangeEnd" value="70" min="1" max="9999"/>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Numbers per row</span>
+        <input type="number" class="field-input" id="perRow" value="10" min="4" max="20"/>
+      </div>
+    </div>
+
+    <!-- Questions -->
+    <div class="card">
+      <div class="card-title">Questions</div>
+      <div class="field-row">
+        <span class="field-label">Total questions</span>
+        <input type="number" class="field-input" id="totalQ" value="2" min="1" max="30"/>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Blanks (Type B/D)</span>
+        <input type="number" class="field-input" id="blankCount" value="4" min="1" max="15"/>
+      </div>
+      <div class="field-row type-e-only is-hidden">
+        <span class="field-label">Add value (Type E)</span>
+        <input type="number" class="field-input" id="eqAddend" value="3" min="0" max="99"/>
+      </div>
+      <div class="field-row type-e-only is-hidden">
+        <span class="field-label">Question numbers</span>
+        <input type="text" class="field-input field-input-wide" id="eqNumberList" value="1,2,3,4,5,6,7,8,9,10,11"/>
+      </div>
+      <div class="field-row type-e-only is-hidden">
+        <button class="btn-change-q" type="button" onclick="changeTypeEQuestions()">Change Questions (1-11)</button>
+      </div>
+    </div>
+
+    <button class="btn-generate" onclick="generateWorksheet()">Generate Worksheet</button>
+    <button class="btn-combine" id="btnCombine" onclick="generateCombinedWorksheet()">Combine A+B+C+D</button>
+    <button class="btn-print" onclick="printWorksheet()">Print / Save as PDF</button>
+    <button class="btn-print btn-print-exact" onclick="printWorksheet(true)">Print Exact Colors</button>
+
+  </aside>
+
+  <button class="btn btn-outline btn-icon sidebar-restore-btn" id="btnSidebarRestore" onclick="toggleSidebar(false)" title="Show Sidebar" aria-label="Show Sidebar">▶</button>
+
+  <!-- PREVIEW -->
+  <main class="preview-area" id="previewArea">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">Preview</div>
+      <p>Configure your settings and click <strong>Generate Worksheet</strong> to preview</p>
+    </div>
+  </main>
+
+</div>
+
+<!-- Hidden print target -->
+<div id="printTarget"></div>
+
+<script src="./worksheet-levels.js"></script>
+<script>
+  let currentType = 'A';
+  let currentSection = '3A3I';
+  let sidebarMinimized = false;
+  let lastAutoLevel = '3A3I';
+  let combineTypes = false;
+  const ALL_TYPES = ['A', 'B', 'C', 'D'];
+  const WORKSHEET_LOGO_SRC = 'https://www.geniusbees.com/assets/icons/gb-logo.svg';
+  const WORKSHEET_LEVELS = (typeof window.WORKSHEET_LEVELS_CONFIG === 'object' && window.WORKSHEET_LEVELS_CONFIG) ? window.WORKSHEET_LEVELS_CONFIG : {};
+
+  function getConfiguredLevelForSection(sectionName) {
+    const sectionLevels = WORKSHEET_LEVELS.sectionLevels;
+    if (!sectionLevels || typeof sectionLevels !== 'object') return sectionName;
+
+    const rawLevel = sectionLevels[sectionName];
+    if (typeof rawLevel !== 'string') return sectionName;
+
+    const trimmed = rawLevel.trim();
+    return trimmed || sectionName;
+  }
+
+  function setCombineButtonState(enabled) {
+    const btn = document.getElementById('btnCombine');
+    if (btn) btn.classList.toggle('active', enabled);
+  }
+
+  function toggleSidebar(forceState = null) {
+    const container = document.querySelector('.container');
+    const btn = document.getElementById('btnSidebarToggle');
+    const restoreBtn = document.getElementById('btnSidebarRestore');
+    if (!container) return;
+
+    sidebarMinimized = typeof forceState === 'boolean' ? forceState : !sidebarMinimized;
+    container.classList.toggle('sidebar-collapsed', sidebarMinimized);
+
+    if (btn) {
+      btn.textContent = sidebarMinimized ? '▶' : '◀';
+      const label = sidebarMinimized ? 'Show Sidebar' : 'Minimize Sidebar';
+      btn.setAttribute('title', label);
+      btn.setAttribute('aria-label', label);
+    }
+
+    if (restoreBtn) {
+      restoreBtn.textContent = '▶';
+      restoreBtn.setAttribute('title', 'Show Sidebar');
+      restoreBtn.setAttribute('aria-label', 'Show Sidebar');
+    }
+  }
+
+  function syncLevelFieldWithSection(sectionName, force = false) {
+    const levelInput = document.getElementById('wsLevel');
+    if (!levelInput) return;
+
+    const currentValue = (levelInput.value || '').trim();
+    const configuredLevel = getConfiguredLevelForSection(sectionName);
+    if (force || !currentValue || currentValue === lastAutoLevel) {
+      levelInput.value = configuredLevel;
+      lastAutoLevel = configuredLevel;
+    }
+  }
+
+  function setActiveSectionButton(sectionName) {
+    document.querySelectorAll('.section-btn').forEach(btn => {
+      const isActive = btn.textContent.trim() === sectionName;
+      btn.classList.toggle('active', isActive);
+    });
+  }
+
+  function updateSectionUI() {
+    const is3A3I = currentSection === '3A3I';
+    const card3A3I = document.getElementById('card3A3I');
+    const card2A8 = document.getElementById('card2A8');
+    const combineBtn = document.getElementById('btnCombine');
+
+    if (card3A3I) card3A3I.classList.toggle('is-hidden', !is3A3I);
+    if (card2A8) card2A8.classList.toggle('is-hidden', is3A3I);
+    if (combineBtn) combineBtn.classList.toggle('is-hidden', !is3A3I);
+
+    document.querySelectorAll('.type-e-only').forEach(el => {
+      el.classList.toggle('is-hidden', is3A3I);
+    });
+
+    syncQuestionCountControl();
+  }
+
+  function getEnforcedQuestionCount() {
+    const isTypeE = !combineTypes && currentType === 'E';
+    if (isTypeE) return 16;
+
+    return null;
+  }
+
+  function syncQuestionCountControl() {
+    const totalInput = document.getElementById('totalQ');
+    if (!totalInput) return;
+
+    const enforcedCount = getEnforcedQuestionCount();
+    if (enforcedCount !== null) {
+      totalInput.value = enforcedCount;
+      totalInput.min = enforcedCount;
+      totalInput.max = enforcedCount;
+      totalInput.readOnly = true;
+      totalInput.style.cursor = 'not-allowed';
+      return;
+    }
+
+    const is3A3IType = ['A', 'B', 'C', 'D'].includes(currentType);
+    const isLimited3A3I = currentSection === '3A3I' && is3A3IType && !combineTypes;
+    if (isLimited3A3I) {
+      totalInput.min = 1;
+      totalInput.max = 2;
+      totalInput.readOnly = false;
+      totalInput.style.cursor = '';
+
+      const currentValue = parseInt(totalInput.value, 10);
+      const clamped = Number.isFinite(currentValue) ? Math.max(1, Math.min(2, currentValue)) : 2;
+      totalInput.value = clamped;
+      return;
+    }
+
+    totalInput.min = 1;
+    totalInput.max = 30;
+    totalInput.readOnly = false;
+    totalInput.style.cursor = '';
+  }
+
+  function selectSection(el, sectionName) {
+    document.querySelectorAll('.section-btn').forEach(btn => btn.classList.remove('active'));
+    el.classList.add('active');
+    currentSection = sectionName;
+    syncLevelFieldWithSection(currentSection);
+
+    updateSectionUI();
+
+    if (currentSection === '3A3I' && !['A', 'B', 'C', 'D'].includes(currentType)) {
+      const defaultTypeCard = document.querySelector('.type-card[data-type="A"]');
+      if (defaultTypeCard) selectType(defaultTypeCard, 'A');
+    } else if (currentSection === '2A8' && currentType !== 'E') {
+      const typeECard = document.querySelector('.type-card[data-type="E"]');
+      if (typeECard) selectType(typeECard, 'E');
+    }
+  }
+
+  function selectType(el, t) {
+    document.querySelectorAll('.type-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    currentType = t;
+    combineTypes = false;
+    setCombineButtonState(false);
+
+    currentSection = t === 'E' ? '2A8' : '3A3I';
+    syncLevelFieldWithSection(currentSection);
+    setActiveSectionButton(currentSection);
+    updateSectionUI();
+
+    if (t === 'E') {
+      const titleInput = document.getElementById('wsTitle');
+      if (titleInput && (!titleInput.value || titleInput.value === 'Write the numbers')) {
+        titleInput.value = 'Add';
+      }
+
+      syncQuestionCountControl();
+    } else {
+      syncQuestionCountControl();
+    }
+  }
+
+  function changeTypeEQuestions() {
+    const totalInput = document.getElementById('totalQ');
+    const count = Math.max(1, parseInt(totalInput?.value, 10) || 16);
+    const nextValues = [];
+
+    for (let i = 0; i < count; i++) {
+      nextValues.push(Math.floor(Math.random() * 11) + 1);
+    }
+
+    const listInput = document.getElementById('eqNumberList');
+    if (listInput) listInput.value = nextValues.join(',');
+
+    if (currentType === 'E') generateWorksheet();
+  }
+
+  function generateCombinedWorksheet() {
+    if (currentSection !== '3A3I') {
+      currentSection = '3A3I';
+      syncLevelFieldWithSection(currentSection);
+      setActiveSectionButton('3A3I');
+      updateSectionUI();
+
+      if (!['A', 'B', 'C', 'D'].includes(currentType)) {
+        const defaultTypeCard = document.querySelector('.type-card[data-type="A"]');
+        if (defaultTypeCard) selectType(defaultTypeCard, 'A');
+      }
+    }
+
+    combineTypes = true;
+    setCombineButtonState(true);
+    syncQuestionCountControl();
+    generateWorksheet();
+  }
+
+  function range(start, end) {
+    const a = [];
+    for (let i = start; i <= end; i++) a.push(i);
+    return a;
+  }
+
+  const BOX_COLORS = ['col-purple','col-blue','col-amber','col-green','col-pink'];
+  const CIRCLE_COLORS = ['circle-teal','circle-purple','circle-amber'];
+
+  function renderQuestion(nums, type, qIdx, blankCount) {
+    const color = BOX_COLORS[qIdx % BOX_COLORS.length];
+    let html = `<div class="q-block"><div class="q-num">(${qIdx + 1})</div>`;
+    const bc = Math.min(blankCount, nums.length - 1);
+
+    if (type === 'A') {
+      html += `<div class="num-row">${nums.map(n => `<div class="num-box ${color}">${n}</div>`).join('')}</div>`;
+      html += `<div class="num-row">${nums.map(() => `<div class="num-box num-blank"></div>`).join('')}</div>`;
+
+    } else if (type === 'B') {
+      html += `<div class="num-row">${nums.map(n => `<div class="num-box ${color}">${n}</div>`).join('')}</div>`;
+      html += `<div class="num-row">${nums.map((n, i) =>
+        i < bc ? `<div class="num-box num-blank"></div>` : `<div class="num-box ${color}">${n}</div>`
+      ).join('')}</div>`;
+
+    } else if (type === 'C') {
+      const blankSet = new Set();
+      const tries = Math.min(bc * 2, Math.floor(nums.length * 0.4));
+      while (blankSet.size < tries) blankSet.add(Math.floor(Math.random() * nums.length));
+      html += `<div class="num-row">${nums.map((n, i) => {
+        if (blankSet.has(i)) return `<div class="num-circle circle-blank"></div>`;
+        const c = CIRCLE_COLORS[i % CIRCLE_COLORS.length];
+        return `<div class="num-circle ${c}">${n}</div>`;
+      }).join('')}</div>`;
+      // second row
+      html += `<div class="num-row">${nums.map((n, i) => {
+        const c = CIRCLE_COLORS[i % CIRCLE_COLORS.length];
+        return `<div class="num-circle ${c}">${n + nums.length}</div>`;
+      }).join('')}</div>`;
+
+    } else if (type === 'D') {
+      html += `<div class="num-row">${nums.map(n => `<div class="num-box ${color}">${n}</div>`).join('')}</div>`;
+      html += `<div class="num-row">${nums.map((n, i) => {
+        const fromEnd = nums.length - 1 - i;
+        return fromEnd < bc
+          ? `<div class="num-box num-blank"></div>`
+          : `<div class="num-box ${color}">${n}</div>`;
+      }).join('')}</div>`;
+    }
+
+    html += `</div>`;
+    return html;
+  }
+
+  function parseIntegerList(rawText) {
+    return (rawText || '')
+      .split(/[^\d-]+/)
+      .map(v => parseInt(v, 10))
+      .filter(v => Number.isFinite(v));
+  }
+
+  function renderEquationQuestion(base, addend, qIdx) {
+    return `
+      <div class="q-block q-block-equation">
+        <div class="q-num">(${qIdx + 1})</div>
+        <div class="equation-row">
+          <span>${base}</span>
+          <span>+</span>
+          <span>${addend}</span>
+          <span>=</span>
+          <span class="eq-answer-line"></span>
+        </div>
+      </div>
+    `;
+  }
+
+  function buildWorksheetHTML(forcedTotalQ = null, silent = false) {
+    const start    = parseInt(document.getElementById('rangeStart').value) || 31;
+    const end      = parseInt(document.getElementById('rangeEnd').value)   || 70;
+    const perRow   = parseInt(document.getElementById('perRow').value)     || 10;
+    const requestedTotalQ = parseInt(document.getElementById('totalQ').value) || 4;
+    const blankCnt = parseInt(document.getElementById('blankCount').value) || 4;
+    const eqAddend = parseInt(document.getElementById('eqAddend').value)   || 3;
+    const eqNumbersRaw = document.getElementById('eqNumberList').value;
+    const title    = document.getElementById('wsTitle').value || 'Write the numbers';
+    const levelRaw = document.getElementById('wsLevel')?.value || currentSection;
+    const levelLabel = (levelRaw || '').trim() || currentSection;
+    const showName = document.getElementById('chkName').checked;
+    const showDate = document.getElementById('chkDate').checked;
+
+    if (end <= start) {
+      if (!silent) alert('End number must be greater than start number.');
+      return null;
+    }
+
+    const allNums = range(start, end);
+    const isTypeE = !combineTypes && currentType === 'E';
+    const showKidSticker = currentSection === '3A3I';
+    const enforcedCount = getEnforcedQuestionCount();
+    const totalQ  = forcedTotalQ ?? enforcedCount ?? requestedTotalQ;
+    const isOneQuestionLayout = !isTypeE && totalQ === 1;
+    const isTwoQuestionLayout = !isTypeE && totalQ === 2;
+    const segLen  = Math.ceil(allNums.length / totalQ);
+    const typeLabel = combineTypes ? 'Mixed (A + B + C + D)' : `Type ${currentType}`;
+
+    let questions = '';
+    if (isTypeE) {
+      const parsedEqNumbers = parseIntegerList(eqNumbersRaw);
+      const fallbackEqNumbers = allNums.length ? allNums : [1];
+      const seedNumbers = parsedEqNumbers.length ? parsedEqNumbers : fallbackEqNumbers;
+      const equationItems = [];
+
+      for (let q = 0; q < totalQ; q++) {
+        const base = seedNumbers[q % seedNumbers.length];
+        equationItems.push(renderEquationQuestion(base, eqAddend, q));
+      }
+
+      questions = `<div class="equation-grid">${equationItems.join('')}</div>`;
+    } else {
+      for (let q = 0; q < totalQ; q++) {
+        const nums = allNums.slice(q * segLen, (q + 1) * segLen);
+        if (!nums.length) break;
+        const qType = combineTypes ? ALL_TYPES[q % ALL_TYPES.length] : currentType;
+        questions += renderQuestion(nums, qType, q, blankCnt);
+      }
+    }
+
+    const fields = `
+      ${showName ? `
+        <div class="ws-fill-line"><span>First Name:</span><span class="dots"></span></div>
+        <div class="ws-fill-line"><span>Last Name:</span><span class="dots"></span></div>
+      ` : ''}
+      <div class="ws-fill-line"><span>GeniusBees ID:</span><span class="dots"></span></div>
+      ${showDate ? `<div class="ws-fill-line"><span>Date:</span><span class="dots"></span></div>` : ''}
+    `;
+
+    return `
+      <div class="ws-page ${isTypeE ? 'type-e-layout' : ''} ${isOneQuestionLayout ? 'one-question-layout' : ''} ${isTwoQuestionLayout ? 'two-question-layout' : ''}" id="wsPage">
+        <div class="ws-header-bar">
+          <div class="ws-brand-column">
+            <div class="ws-brand-logo-wrap">
+              <img class="ws-brand-logo" src="${WORKSHEET_LOGO_SRC}" alt="GeniusBees"/>
+            </div>
+          </div>
+
+          <div class="ws-center-column">
+            <div class="ws-main-title">WORK<span class="muted">SHEET</span></div>
+            <div class="ws-meta-line ws-level-line">English Level:${levelLabel}</div>
+            <div class="ws-meta-line">Activity: ${title}</div>
+          </div>
+
+          <div class="ws-right-column">${fields}</div>
+        </div>
+
+        <div class="ws-instruction">${title}.</div>
+
+        <div class="ws-questions ${isTypeE ? 'ws-questions-e' : 'ws-questions-default'}">
+          ${questions}
+        </div>
+
+        <div class="ws-footer">
+          <span class="ws-footer-left">
+            ${showKidSticker ? `
+            <span class="ws-kid-sticker" aria-hidden="true">
+              <svg class="ws-kid-svg" viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Fun decoration">
+                <circle cx="16" cy="18" r="10" fill="#60a5fa"/>
+                <circle cx="36" cy="18" r="10" fill="#34d399"/>
+                <circle cx="56" cy="18" r="10" fill="#fbbf24"/>
+                <circle cx="76" cy="18" r="10" fill="#f472b6"/>
+                <circle cx="96" cy="18" r="10" fill="#c084fc"/>
+                <circle cx="106" cy="9" r="5" fill="#fde68a"/>
+                <circle cx="104" cy="8" r="1" fill="#111827"/>
+                <circle cx="108" cy="8" r="1" fill="#111827"/>
+                <path d="M103 10.5 Q106 13 109 10.5" stroke="#111827" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+              </svg>
+            </span>` : ''}
+          </span>
+          <span>Page: 1</span>
+        </div>
+
+        <div class="ws-bottom-contact">
+          <div class="ws-bottom-contact-line"><span class="u">www.geniusbees.com</span></div>
+          <div class="ws-bottom-contact-line"><span class="u">info@geniusbees.com</span></div>
+          <div class="ws-bottom-contact-line">Copyright © 2025 <span class="u">GeniusBees</span> Inc. All rights reserved</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function sanitizeQuestionCount(rawValue) {
+    const parsed = parseInt(rawValue, 10);
+    if (!Number.isFinite(parsed)) return 4;
+    return Math.max(1, Math.min(30, parsed));
+  }
+
+  function doesWorksheetFitA4(html) {
+    const probe = document.createElement('div');
+    probe.style.position = 'fixed';
+    probe.style.left = '-100000px';
+    probe.style.top = '0';
+    probe.style.visibility = 'hidden';
+    probe.style.pointerEvents = 'none';
+    probe.style.width = '210mm';
+    probe.innerHTML = html;
+    document.body.appendChild(probe);
+
+    const page = probe.querySelector('.ws-page');
+    let fits = true;
+    if (page) {
+      page.style.height = '297mm';
+      page.style.minHeight = '297mm';
+      page.style.maxHeight = '297mm';
+      page.style.overflow = 'hidden';
+      fits = page.scrollHeight <= page.clientHeight + 1;
+    }
+
+    probe.remove();
+    return fits;
+  }
+
+  function resolveQuestionCountForA4(requestedCount) {
+    const enforcedCount = getEnforcedQuestionCount();
+    if (enforcedCount !== null) return enforcedCount;
+
+    let count = sanitizeQuestionCount(requestedCount);
+    while (count >= 1) {
+      const html = buildWorksheetHTML(count, true);
+      if (!html) return count;
+      if (doesWorksheetFitA4(html)) return count;
+      count -= 1;
+    }
+
+    return 1;
+  }
+
+  function generateWorksheet() {
+    syncQuestionCountControl();
+    const totalInput = document.getElementById('totalQ');
+    const requestedCount = sanitizeQuestionCount(totalInput?.value);
+    const enforcedCount = getEnforcedQuestionCount();
+    const fittedCount = resolveQuestionCountForA4(requestedCount);
+
+    if (totalInput) totalInput.value = fittedCount;
+
+    const html = buildWorksheetHTML(fittedCount);
+    if (!html) return;
+
+    if (fittedCount !== requestedCount && enforcedCount === null) {
+      alert(`Question count adjusted to ${fittedCount} so it fits one A4 page.`);
+    }
+
+    const area = document.getElementById('previewArea');
+    area.innerHTML = html;
+  }
+
+  function printWorksheet(exactColors = false) {
+    syncQuestionCountControl();
+    const totalInput = document.getElementById('totalQ');
+    const requestedCount = sanitizeQuestionCount(totalInput?.value);
+    const fittedCount = resolveQuestionCountForA4(requestedCount);
+
+    if (totalInput) totalInput.value = fittedCount;
+
+    const html = buildWorksheetHTML(fittedCount);
+    if (!html) { alert('Please generate a worksheet first.'); return; }
+
+    const exactColorCSS = exactColors ? `
+  html, body, * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+` : '';
+
+    const w = window.open('', '_blank', 'width=900,height=700');
+    w.document.write(`<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8"/>
+<title>Worksheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  @page { size: A4; margin: 0; }
+  ${exactColorCSS}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 210mm; min-height: 297mm; }
+  body { font-family: 'Nunito', sans-serif; background: white; color: #1f2937; margin: 0; }
+  .ws-page { width: 210mm; min-height: 297mm; padding: 12mm; margin: 0; border-radius: 0; box-shadow: none; font-family: 'Nunito', sans-serif; display: flex; flex-direction: column; }
+  .ws-header-bar { display: flex; align-items: stretch; border-bottom: 1.5px solid #1f2937; margin-bottom: 16px; padding-bottom: 10px; }
+  .ws-header-bar { font-family: 'Nunito', sans-serif; }
+  .ws-brand-column { width: 225px; border-right: 1.2px solid #9ca3af; padding-right: 12px; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+  .ws-brand-logo-wrap { min-height: 84px; display: flex; align-items: center; justify-content: center; }
+  .ws-brand-logo { width: 100%; max-height: 86px; object-fit: contain; object-position: left center; }
+  .ws-brand-contact { font-size: 9.5px; color: #111827; line-height: 1.35; border-top: 1px solid #d1d5db; padding-top: 5px; }
+  .ws-brand-contact-line { display: flex; justify-content: space-between; gap: 10px; white-space: nowrap; }
+  .ws-brand-contact-line .u { text-decoration: underline; }
+  .ws-brand-copy { margin-top: 1px; }
+  .ws-center-column { flex: 1; padding: 2px 12px 0; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+  .ws-main-title { font-family: inherit; font-size: 30px; letter-spacing: 0.01em; line-height: 0.95; color: #000000; }
+  .ws-main-title .muted { color: #000000; }
+  .ws-meta-line { font-family: inherit; font-size: 14px; font-weight: 700; color: #111827; line-height: 1.15; }
+  .ws-level-line { font-size: 16px; font-weight: 800; line-height: 1.1; }
+  .ws-right-column { width: 230px; padding-left: 12px; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+  .ws-fill-line { display: flex; align-items: baseline; gap: 7px; font-family: inherit; font-size: 13px; font-weight: 700; color: #111827; line-height: 1.2; white-space: nowrap; }
+  .ws-fill-line .dots { flex: 1; border-bottom: 1.8px dotted #111827; height: 0; min-width: 70px; }
+  .ws-instruction { font-size: 14px; color: #374151; font-weight: 700; margin-bottom: 18px; }
+  .ws-instruction::before { content: '• '; color: #7c3aed; }
+  .ws-questions { flex: 1; min-height: 0; }
+  .ws-questions-default { display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
+  .ws-questions-default .q-block { margin-bottom: 0; }
+  .ws-questions-e { display: flex; }
+  .ws-questions-e .equation-grid { width: 100%; }
+  .q-block { margin-bottom: 24px; }
+  .q-num { font-size: 13px; font-weight: 700; color: #9ca3af; margin-bottom: 8px; }
+  .num-row { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
+  .num-box { width: 52px; height: 44px; border: 1.5px solid #fdba74; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; }
+  .num-blank { border: 2px solid #fdba74; background: #fff7ed; }
+  .col-purple { background: #c084fc; color: #3b0764; }
+  .col-blue   { background: #60a5fa; color: #1e3a5f; }
+  .col-amber  { background: #fbbf24; color: #78350f; }
+  .col-green  { background: #34d399; color: #064e3b; }
+  .col-pink   { background: #f472b6; color: #831843; }
+  .num-circle { width: 52px; height: 52px; border: 1.5px solid #fdba74; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; }
+  .circle-teal   { background: #0e7490; color: #e0f7fa; }
+  .circle-purple { background: #c084fc; color: #3b0764; }
+  .circle-amber  { background: #fbbf24; color: #78350f; }
+  .circle-blank  { border: 2.5px solid #fdba74; background: transparent; }
+  .equation-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 26px; row-gap: 8px; }
+  .q-block-equation { margin-bottom: 0; }
+  .equation-row { display: flex; align-items: baseline; gap: 10px; font-size: 34px; font-weight: 500; color: #111827; line-height: 1; }
+  .eq-answer-line { display: inline-block; width: 58px; border-bottom: 2px solid #111827; transform: translateY(-3px); }
+  .ws-page.type-e-layout .ws-instruction { margin-bottom: 10px; }
+  .ws-page.type-e-layout .ws-questions-e .equation-grid { flex: 1; align-content: space-between; grid-auto-rows: minmax(0, 1fr); row-gap: 6px; }
+  .ws-page.type-e-layout .q-block-equation { display: flex; flex-direction: column; justify-content: center; }
+  .ws-page.type-e-layout .q-num { margin-bottom: 4px; }
+  .ws-page.type-e-layout .ws-footer { margin-top: 10px; }
+  .ws-page.type-e-layout .ws-bottom-contact { margin-top: 6px; }
+  .ws-page.one-question-layout .ws-questions-default,
+  .ws-page.two-question-layout .ws-questions-default { display: grid; align-content: stretch; gap: 12px; }
+  .ws-page.one-question-layout .ws-questions-default { grid-template-rows: 1fr; }
+  .ws-page.two-question-layout .ws-questions-default { grid-template-rows: 1fr 1fr; }
+  .ws-page.one-question-layout .q-block,
+  .ws-page.two-question-layout .q-block { display: flex; flex-direction: column; justify-content: center; margin-bottom: 0; }
+  .ws-page.one-question-layout .num-row { gap: 10px; }
+  .ws-page.two-question-layout .num-row { gap: 8px; }
+  .ws-page.one-question-layout .num-box { width: 62px; height: 54px; font-size: 26px; border-width: 2px; }
+  .ws-page.one-question-layout .num-circle { width: 62px; height: 62px; font-size: 26px; border-width: 2px; }
+  .ws-page.two-question-layout .num-box { width: 58px; height: 50px; font-size: 24px; border-width: 2px; }
+  .ws-page.two-question-layout .num-circle { width: 58px; height: 58px; font-size: 24px; border-width: 2px; }
+  .ws-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; }
+  .ws-footer-left { display: flex; align-items: center; min-height: 28px; }
+  .ws-kid-sticker { display: inline-flex; align-items: center; }
+  .ws-kid-svg { width: 98px; height: 30px; }
+  .ws-bottom-contact { margin-top: 8px; padding-top: 6px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 10px; line-height: 1.35; color: #4b5563; }
+  .ws-bottom-contact-line .u { text-decoration: underline; }
+</style>
+</head><body>${html}</body></html>`);
+    w.document.close();
+    w.focus();
+    setTimeout(() => { w.print(); }, 600);
+  }
+
+  // Auto generate on load
+  syncLevelFieldWithSection(currentSection, true);
+  updateSectionUI();
+  syncQuestionCountControl();
+  generateWorksheet();
+</script>
+
+</body>
+</html>
