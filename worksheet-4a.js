@@ -137,7 +137,7 @@
     return `
       <div class="trace4a-question">
         <div class="trace4a-code">${subCode}</div>
-        <div class="trace4a-image-strip">
+        <div class="trace4a-image-strip" style="--trace-count:${traceNumber};">
           ${buildImageTiles(traceNumber, questionIndex, imageUrls)}
         </div>
         <div class="trace4a-body">
