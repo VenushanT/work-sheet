@@ -115,7 +115,13 @@
     .btn-primary:active { transform: translateY(0); }
 
     /* ── LAYOUT ── */
-    .container { display: flex; height: calc(100vh - 60px); min-height: calc(100vh - 60px); position: relative; }
+    .container {
+      display: flex;
+      height: calc(100vh - 60px);
+      min-height: calc(100vh - 60px);
+      position: relative;
+      --sidebar-width: 300px;
+    }
     .container.sidebar-collapsed .sidebar {
       width: 0;
       min-width: 0;
@@ -131,6 +137,7 @@
       width: 100%;
       flex: 1;
     }
+    .container.sidebar-collapsed .sidebar-resizer { display: none; }
 
     .sidebar-restore-btn {
       position: absolute;
@@ -143,8 +150,8 @@
 
     /* ── SIDEBAR ── */
     .sidebar {
-      width: 300px;
-      min-width: 300px;
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
       background: var(--white);
       border-right: 1px solid var(--gray-200);
       overflow-y: auto;
@@ -161,6 +168,30 @@
     }
     .sidebar::-webkit-scrollbar { width: 4px; }
     .sidebar::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 4px; }
+
+    .sidebar-resizer {
+      width: 10px;
+      flex: 0 0 10px;
+      cursor: col-resize;
+      position: relative;
+      background: transparent;
+      transition: background 0.15s ease;
+    }
+    .sidebar-resizer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 4px;
+      width: 2px;
+      background: var(--gray-300);
+      border-radius: 2px;
+      transition: background 0.15s ease;
+    }
+    .sidebar-resizer:hover::before,
+    .sidebar-resizer.dragging::before {
+      background: var(--orange-600);
+    }
 
     .card {
       background: var(--white);
@@ -183,6 +214,9 @@
       margin-bottom: 10px;
     }
     .field-row:last-child { margin-bottom: 0; }
+    .field-row > .field-label {
+      flex: 0 0 auto;
+    }
     .field-label { font-size: 13px; color: var(--gray-600); font-weight: 500; }
     .field-input {
       width: 80px;
@@ -204,7 +238,16 @@
       background: white;
     }
     .field-input-wide {
-      width: 140px;
+      width: auto;
+      flex: 1 1 140px;
+      min-width: 0;
+      text-align: left;
+      padding-left: 10px;
+    }
+    .field-input-full {
+      display: block;
+      width: 100%;
+      min-width: 0;
       text-align: left;
       padding-left: 10px;
     }
@@ -262,6 +305,7 @@
     .section-btn:hover { border-color: var(--orange-600); background: var(--orange-50); }
     .section-btn.active { border-color: var(--orange-700); background: #ffedd5; color: var(--orange-800); }
     .is-hidden { display: none !important; }
+    .search-hidden { display: none !important; }
 
     .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .type-grid-single { grid-template-columns: 1fr; }
@@ -517,6 +561,94 @@
     .ws-questions-default .q-block { margin-bottom: 0; }
     .ws-questions-e { display: flex; }
     .ws-questions-e .equation-grid { width: 100%; }
+    .ws-questions-f {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .ws-image-question {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+    }
+    .ws-image-prompt {
+      font-size: 28px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.2;
+    }
+    .ws-image-frame {
+      flex: 1;
+      min-height: 0;
+      border: 2px solid #fdba74;
+      border-radius: 12px;
+      padding: 12px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: #fff7ed;
+    }
+    .ws-image-frame > img {
+      width: 100%;
+      max-height: 150mm;
+      object-fit: contain;
+      object-position: center;
+      border-radius: 8px;
+      background: white;
+    }
+    .ws-image-missing {
+      width: 100%;
+      min-height: 90mm;
+      border: 2px dashed #fb923c;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 16px;
+      color: #9a3412;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.4;
+      background: #fff;
+    }
+    .ws-image-grid {
+      width: 100%;
+      display: grid;
+      justify-content: center;
+      align-content: center;
+      gap: 14px 12px;
+      padding: 2px 2px 98px;
+    }
+    .ws-image-item {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      object-position: center;
+      display: block;
+      border-radius: 6px;
+    }
+    .ws-answer-box-row {
+      display: flex;
+      justify-content: flex-end;
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      z-index: 2;
+    }
+    .ws-answer-box {
+      width: 84px;
+      height: 84px;
+      border: 3px solid #4b5563;
+      border-radius: 14px;
+      background: white;
+    }
 
     .q-block { margin-bottom: 24px; }
     .q-num { font-size: 13px; font-weight: 700; color: var(--gray-500); margin-bottom: 8px; }
@@ -702,6 +834,8 @@
         max-height: none;
       }
 
+      .sidebar-resizer { display: none; }
+
       .preview-area {
         padding: 1rem;
       }
@@ -767,6 +901,19 @@
         row-gap: 10px;
       }
 
+      .ws-image-prompt {
+        font-size: 22px;
+      }
+
+      .ws-image-grid {
+        gap: 12px 10px;
+      }
+
+      .ws-answer-box {
+        width: 72px;
+        height: 72px;
+      }
+
       .ws-page.two-question-layout .num-box {
         width: 50px;
         height: 44px;
@@ -815,6 +962,11 @@
       }
 
       .eq-answer-line { width: 44px; }
+
+      .ws-image-prompt {
+        font-size: 19px;
+      }
+
     }
 
     /* ── PRINT STYLES ── */
@@ -859,6 +1011,20 @@
       <button class="btn btn-outline btn-icon" id="btnSidebarToggle" onclick="toggleSidebar()" title="Minimize Sidebar" aria-label="Minimize Sidebar">◀</button>
     </div>
 
+    <div class="card">
+      <div class="card-title">Search Worksheet</div>
+      <input
+        type="text"
+        class="field-input field-input-full"
+        id="worksheetSearch"
+        placeholder="Search by section or type"
+        oninput="onWorksheetSearchInput()"
+      />
+      <div class="type-desc is-hidden" id="worksheetSearchEmpty" style="margin-top:8px;">
+        No matching worksheet options.
+      </div>
+    </div>
+
     <!-- General Settings -->
     <div class="card">
       <div class="card-title">General</div>
@@ -886,6 +1052,7 @@
       <div class="section-grid" id="sectionGrid">
         <button class="section-btn active" type="button" onclick="selectSection(this,'3A3I')">3A3I</button>
         <button class="section-btn" type="button" onclick="selectSection(this,'2A8')">2A8</button>
+        <button class="section-btn" type="button" onclick="selectSection(this,'4A121')">4A121</button>
       </div>
     </div>
 
@@ -916,14 +1083,49 @@
       <div class="card-title">2A8 Variations</div>
       <div class="type-grid type-grid-single" id="typeGridSpecial">
         <div class="type-card" data-type="E" onclick="selectType(this,'E')">
-          <span class="type-badge">Type E</span>
+          <span class="type-badge">Type A</span>
           <div class="type-desc">Addition format like workbook questions</div>
         </div>
       </div>
     </div>
 
+    <div class="card is-hidden" id="card4A121">
+      <div class="card-title">4A121 Variations</div>
+      <div class="type-grid type-grid-single" id="typeGrid4A121">
+        <div class="type-card" data-type="F" onclick="selectType(this,'F')">
+          <span class="type-badge">Type A</span>
+          <div class="type-desc">Image counting with answer box (like workbook photo questions)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card is-hidden type-f-only">
+      <div class="card-title">4A121 Image Link</div>
+      <div class="field-row">
+        <span class="field-label">Image URL (S3)</span>
+      </div>
+      <input
+        type="url"
+        class="field-input field-input-full"
+        id="imageUrl4A121"
+        placeholder="https://your-bucket.s3.amazonaws.com/image.jpg"
+        onchange="onSection4A121ImageUrlChange()"
+      />
+      <div class="field-row" style="margin-top:10px;">
+        <span class="field-label">How many images</span>
+        <input type="number" class="field-input" id="imageCount4A121" value="15" min="1" max="40" onchange="onSection4A121ImageUrlChange()"/>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Images per row</span>
+        <input type="number" class="field-input" id="imagePerRow4A121" value="5" min="1" max="8" onchange="onSection4A121ImageUrlChange()"/>
+      </div>
+      <div class="type-desc" style="margin-top:8px;">
+        Paste one image URL, set the count, and it will render as a repeated grid.
+      </div>
+    </div>
+
     <!-- Number Range -->
-    <div class="card">
+    <div class="card" id="cardNumberRange">
       <div class="card-title">Number Range</div>
       <div class="field-row">
         <span class="field-label">Start number</span>
@@ -933,25 +1135,25 @@
         <span class="field-label">End number</span>
         <input type="number" class="field-input" id="rangeEnd" value="70" min="1" max="9999"/>
       </div>
-      <div class="field-row">
+      <div class="field-row" id="perRowRow">
         <span class="field-label">Numbers per row</span>
         <input type="number" class="field-input" id="perRow" value="10" min="4" max="20"/>
       </div>
     </div>
 
     <!-- Questions -->
-    <div class="card">
+    <div class="card" id="cardQuestions">
       <div class="card-title">Questions</div>
       <div class="field-row">
         <span class="field-label">Total questions</span>
         <input type="number" class="field-input" id="totalQ" value="2" min="1" max="30"/>
       </div>
-      <div class="field-row">
+      <div class="field-row" id="blankCountRow">
         <span class="field-label">Blanks (Type B/D)</span>
         <input type="number" class="field-input" id="blankCount" value="4" min="1" max="15"/>
       </div>
       <div class="field-row type-e-only is-hidden">
-        <span class="field-label">Add value (Type E)</span>
+        <span class="field-label">Add value (Type A)</span>
         <input type="number" class="field-input" id="eqAddend" value="3" min="0" max="99"/>
       </div>
       <div class="field-row type-e-only is-hidden">
@@ -970,6 +1172,8 @@
 
   </aside>
 
+  <div class="sidebar-resizer" id="sidebarResizer" role="separator" aria-label="Resize sidebar" aria-orientation="vertical"></div>
+
   <button class="btn btn-outline btn-icon sidebar-restore-btn" id="btnSidebarRestore" onclick="toggleSidebar(false)" title="Show Sidebar" aria-label="Show Sidebar">▶</button>
 
   <!-- PREVIEW -->
@@ -986,15 +1190,119 @@
 <div id="printTarget"></div>
 
 <script src="./worksheet-levels.js"></script>
+<script src="./worksheet-images.js"></script>
 <script>
   let currentType = 'A';
   let currentSection = '3A3I';
   let sidebarMinimized = false;
   let lastAutoLevel = '3A3I';
   let combineTypes = false;
+  let isSidebarResizing = false;
+  const SIDEBAR_MIN_WIDTH = 250;
+  const SIDEBAR_MAX_WIDTH = 640;
   const ALL_TYPES = ['A', 'B', 'C', 'D'];
   const WORKSHEET_LOGO_SRC = 'https://www.geniusbees.com/assets/icons/gb-logo.svg';
   const WORKSHEET_LEVELS = (typeof window.WORKSHEET_LEVELS_CONFIG === 'object' && window.WORKSHEET_LEVELS_CONFIG) ? window.WORKSHEET_LEVELS_CONFIG : {};
+  const WORKSHEET_IMAGES = (typeof window.WORKSHEET_IMAGES_CONFIG === 'object' && window.WORKSHEET_IMAGES_CONFIG) ? window.WORKSHEET_IMAGES_CONFIG : {};
+
+  function setSidebarWidth(widthPx) {
+    const sidebar = document.querySelector('.sidebar');
+    const container = document.querySelector('.container');
+    if (!sidebar || !container) return;
+
+    const clamped = Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, Math.round(widthPx)));
+    container.style.setProperty('--sidebar-width', `${clamped}px`);
+    sidebar.style.width = `${clamped}px`;
+    sidebar.style.minWidth = `${clamped}px`;
+  }
+
+  function startSidebarResize(event) {
+    if (sidebarMinimized) return;
+    if (window.innerWidth <= 1100) return;
+
+    isSidebarResizing = true;
+    const resizer = document.getElementById('sidebarResizer');
+    if (resizer) resizer.classList.add('dragging');
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    event.preventDefault();
+  }
+
+  function moveSidebarResize(event) {
+    if (!isSidebarResizing) return;
+
+    const container = document.querySelector('.container');
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+    const desiredWidth = event.clientX - rect.left;
+    setSidebarWidth(desiredWidth);
+  }
+
+  function stopSidebarResize() {
+    if (!isSidebarResizing) return;
+
+    isSidebarResizing = false;
+    const resizer = document.getElementById('sidebarResizer');
+    if (resizer) resizer.classList.remove('dragging');
+
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }
+
+  function initializeSidebarResize() {
+    const resizer = document.getElementById('sidebarResizer');
+    if (!resizer) return;
+
+    resizer.addEventListener('mousedown', startSidebarResize);
+    window.addEventListener('mousemove', moveSidebarResize);
+    window.addEventListener('mouseup', stopSidebarResize);
+  }
+
+  function normalizeSearchText(value) {
+    return String(value ?? '').trim().toLowerCase();
+  }
+
+  function applyWorksheetSearchFilter() {
+    const searchInput = document.getElementById('worksheetSearch');
+    const emptyState = document.getElementById('worksheetSearchEmpty');
+    const query = normalizeSearchText(searchInput?.value);
+    const hasQuery = query.length > 0;
+
+    let sectionMatchCount = 0;
+    document.querySelectorAll('#sectionGrid .section-btn').forEach(btn => {
+      const matches = !hasQuery || normalizeSearchText(btn.textContent).includes(query);
+      btn.classList.toggle('search-hidden', !matches);
+      if (matches) sectionMatchCount += 1;
+    });
+
+    let typeMatchCount = 0;
+    document.querySelectorAll('.type-card').forEach(card => {
+      const typeCode = normalizeSearchText(card.dataset.type);
+      const cardText = normalizeSearchText(card.textContent);
+      const matches = !hasQuery || cardText.includes(query) || `type ${typeCode}`.includes(query);
+      card.classList.toggle('search-hidden', !matches);
+      if (matches) typeMatchCount += 1;
+    });
+
+    ['card3A3I', 'card2A8', 'card4A121'].forEach(cardId => {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+
+      const hasVisibleTypes = card.querySelectorAll('.type-card:not(.search-hidden)').length > 0;
+      card.classList.toggle('search-hidden', hasQuery && !hasVisibleTypes);
+    });
+
+    if (emptyState) {
+      const hasMatches = sectionMatchCount > 0 || typeMatchCount > 0;
+      emptyState.classList.toggle('is-hidden', !hasQuery || hasMatches);
+    }
+  }
+
+  function onWorksheetSearchInput() {
+    applyWorksheetSearchFilter();
+  }
 
   function getConfiguredLevelForSection(sectionName) {
     const sectionLevels = WORKSHEET_LEVELS.sectionLevels;
@@ -1005,6 +1313,131 @@
 
     const trimmed = rawLevel.trim();
     return trimmed || sectionName;
+  }
+
+  function getConfiguredImageForSection(sectionName) {
+    const sectionImages = WORKSHEET_IMAGES.sectionImages;
+    if (!sectionImages || typeof sectionImages !== 'object') return '';
+
+    const rawValue = sectionImages[sectionName];
+    if (typeof rawValue !== 'string') return '';
+
+    const trimmed = rawValue.trim();
+    if (!trimmed) return '';
+    return /^https?:\/\//i.test(trimmed) ? trimmed : '';
+  }
+
+  function getConfiguredPromptForSection(sectionName) {
+    const sectionPrompts = WORKSHEET_IMAGES.sectionPrompts;
+    if (!sectionPrompts || typeof sectionPrompts !== 'object') return '';
+
+    const rawValue = sectionPrompts[sectionName];
+    if (typeof rawValue !== 'string') return '';
+
+    return rawValue.trim();
+  }
+
+  function parseBoundedInt(rawValue, fallbackValue, minValue, maxValue) {
+    const parsed = parseInt(rawValue, 10);
+    if (!Number.isFinite(parsed)) return fallbackValue;
+    return Math.max(minValue, Math.min(maxValue, parsed));
+  }
+
+  function getConfiguredGridForSection(sectionName) {
+    const sectionGrid = WORKSHEET_IMAGES.sectionGrid;
+    if (!sectionGrid || typeof sectionGrid !== 'object') {
+      return { count: 15, perRow: 5 };
+    }
+
+    const rawGrid = sectionGrid[sectionName];
+    if (!rawGrid || typeof rawGrid !== 'object') {
+      return { count: 15, perRow: 5 };
+    }
+
+    return {
+      count: parseBoundedInt(rawGrid.count, 15, 1, 40),
+      perRow: parseBoundedInt(rawGrid.perRow, 5, 1, 8)
+    };
+  }
+
+  function getSuitable4A121GridRange(perRowValue) {
+    const safePerRow = parseBoundedInt(perRowValue, 5, 1, 8);
+    const maxCount = safePerRow * 5;
+    return {
+      perRow: safePerRow,
+      minCount: 1,
+      maxCount: maxCount
+    };
+  }
+
+  function normalize4A121GridInputs() {
+    const countInput = document.getElementById('imageCount4A121');
+    const perRowInput = document.getElementById('imagePerRow4A121');
+    if (!countInput || !perRowInput) return;
+
+    const rangeInfo = getSuitable4A121GridRange(perRowInput.value);
+    perRowInput.value = rangeInfo.perRow;
+    perRowInput.min = '1';
+    perRowInput.max = '8';
+
+    countInput.min = String(rangeInfo.minCount);
+    countInput.max = String(rangeInfo.maxCount);
+    countInput.value = parseBoundedInt(countInput.value, Math.min(15, rangeInfo.maxCount), rangeInfo.minCount, rangeInfo.maxCount);
+  }
+
+  function getSectionImageUrl(sectionName) {
+    if (sectionName === '4A121') {
+      const imageInput = document.getElementById('imageUrl4A121');
+      const inputValue = (imageInput?.value || '').trim();
+      if (/^https?:\/\//i.test(inputValue)) return inputValue;
+    }
+
+    return getConfiguredImageForSection(sectionName);
+  }
+
+  function getSectionImageGridSettings(sectionName) {
+    const configuredGrid = getConfiguredGridForSection(sectionName);
+    if (sectionName !== '4A121') return configuredGrid;
+
+    const countInput = document.getElementById('imageCount4A121');
+    const perRowInput = document.getElementById('imagePerRow4A121');
+    const rangeInfo = getSuitable4A121GridRange(perRowInput?.value ?? configuredGrid.perRow);
+
+    return {
+      count: parseBoundedInt(countInput?.value, configuredGrid.count, rangeInfo.minCount, rangeInfo.maxCount),
+      perRow: rangeInfo.perRow
+    };
+  }
+
+  function onSection4A121ImageUrlChange() {
+    normalize4A121GridInputs();
+
+    if (currentSection === '4A121' || currentType === 'F') {
+      generateWorksheet();
+    }
+  }
+
+  function initializeSectionImageInputs() {
+    const imageInput = document.getElementById('imageUrl4A121');
+    const countInput = document.getElementById('imageCount4A121');
+    const perRowInput = document.getElementById('imagePerRow4A121');
+    if (!imageInput || !countInput || !perRowInput) return;
+
+    const configuredUrl = getConfiguredImageForSection('4A121');
+    const configuredGrid = getConfiguredGridForSection('4A121');
+    if (configuredUrl && !imageInput.value.trim()) {
+      imageInput.value = configuredUrl;
+    }
+
+    if (!countInput.value.trim()) {
+      countInput.value = configuredGrid.count;
+    }
+
+    if (!perRowInput.value.trim()) {
+      perRowInput.value = configuredGrid.perRow;
+    }
+
+    normalize4A121GridInputs();
   }
 
   function setCombineButtonState(enabled) {
@@ -1033,6 +1466,12 @@
       restoreBtn.setAttribute('title', 'Show Sidebar');
       restoreBtn.setAttribute('aria-label', 'Show Sidebar');
     }
+
+    if (!sidebarMinimized) {
+      const sidebar = document.querySelector('.sidebar');
+      const fallbackWidth = parseInt(sidebar?.style.width || sidebar?.offsetWidth || 300, 10);
+      if (Number.isFinite(fallbackWidth)) setSidebarWidth(fallbackWidth);
+    }
   }
 
   function syncLevelFieldWithSection(sectionName, force = false) {
@@ -1056,17 +1495,36 @@
 
   function updateSectionUI() {
     const is3A3I = currentSection === '3A3I';
+    const is2A8 = currentSection === '2A8';
+    const is4A121 = currentSection === '4A121';
     const card3A3I = document.getElementById('card3A3I');
     const card2A8 = document.getElementById('card2A8');
+    const card4A121 = document.getElementById('card4A121');
     const combineBtn = document.getElementById('btnCombine');
+    const numberRangeCard = document.getElementById('cardNumberRange');
+    const perRowRow = document.getElementById('perRowRow');
+    const blankCountRow = document.getElementById('blankCountRow');
 
     if (card3A3I) card3A3I.classList.toggle('is-hidden', !is3A3I);
-    if (card2A8) card2A8.classList.toggle('is-hidden', is3A3I);
+    if (card2A8) card2A8.classList.toggle('is-hidden', !is2A8);
+    if (card4A121) card4A121.classList.toggle('is-hidden', !is4A121);
     if (combineBtn) combineBtn.classList.toggle('is-hidden', !is3A3I);
+    if (numberRangeCard) numberRangeCard.classList.toggle('is-hidden', is2A8 || is4A121);
+    if (perRowRow) perRowRow.classList.toggle('is-hidden', !is3A3I);
+    if (blankCountRow) {
+      const showBlankCount = combineTypes || currentType === 'B' || currentType === 'D';
+      blankCountRow.classList.toggle('is-hidden', !showBlankCount);
+    }
 
     document.querySelectorAll('.type-e-only').forEach(el => {
-      el.classList.toggle('is-hidden', is3A3I);
+      el.classList.toggle('is-hidden', !is2A8);
     });
+
+    document.querySelectorAll('.type-f-only').forEach(el => {
+      el.classList.toggle('is-hidden', !is4A121);
+    });
+
+    applyWorksheetSearchFilter();
 
     syncQuestionCountControl();
   }
@@ -1074,6 +1532,9 @@
   function getEnforcedQuestionCount() {
     const isTypeE = !combineTypes && currentType === 'E';
     if (isTypeE) return 16;
+
+    const isTypeF = !combineTypes && currentType === 'F';
+    if (isTypeF) return 1;
 
     return null;
   }
@@ -1126,6 +1587,9 @@
     } else if (currentSection === '2A8' && currentType !== 'E') {
       const typeECard = document.querySelector('.type-card[data-type="E"]');
       if (typeECard) selectType(typeECard, 'E');
+    } else if (currentSection === '4A121' && currentType !== 'F') {
+      const typeFCard = document.querySelector('.type-card[data-type="F"]');
+      if (typeFCard) selectType(typeFCard, 'F');
     }
   }
 
@@ -1136,7 +1600,7 @@
     combineTypes = false;
     setCombineButtonState(false);
 
-    currentSection = t === 'E' ? '2A8' : '3A3I';
+    currentSection = t === 'E' ? '2A8' : (t === 'F' ? '4A121' : '3A3I');
     syncLevelFieldWithSection(currentSection);
     setActiveSectionButton(currentSection);
     updateSectionUI();
@@ -1146,6 +1610,31 @@
       if (titleInput && (!titleInput.value || titleInput.value === 'Write the numbers')) {
         titleInput.value = 'Add';
       }
+
+      syncQuestionCountControl();
+    } else if (t === 'F') {
+      const titleInput = document.getElementById('wsTitle');
+      if (titleInput && (!titleInput.value || titleInput.value === 'Write the numbers' || titleInput.value === 'Add')) {
+        titleInput.value = 'How many melons are there? Write the number in the box';
+      }
+
+      const imageInput = document.getElementById('imageUrl4A121');
+      const countInput = document.getElementById('imageCount4A121');
+      const perRowInput = document.getElementById('imagePerRow4A121');
+      const configuredGrid = getConfiguredGridForSection('4A121');
+      if (imageInput && !imageInput.value.trim()) {
+        imageInput.value = getConfiguredImageForSection('4A121');
+      }
+
+      if (countInput && !countInput.value.trim()) {
+        countInput.value = configuredGrid.count;
+      }
+
+      if (perRowInput && !perRowInput.value.trim()) {
+        perRowInput.value = configuredGrid.perRow;
+      }
+
+      normalize4A121GridInputs();
 
       syncQuestionCountControl();
     } else {
@@ -1247,6 +1736,18 @@
       .filter(v => Number.isFinite(v));
   }
 
+  function getAdaptiveImageTileSize(imageCount, imagePerRow) {
+    const safeCount = parseBoundedInt(imageCount, 15, 1, 40);
+    const safePerRow = parseBoundedInt(imagePerRow, 5, 1, 8);
+    const rows = Math.ceil(safeCount / safePerRow);
+
+    const gapSize = safePerRow <= 4 ? 14 : (safePerRow <= 6 ? 12 : 10);
+    const sizeByColumns = Math.floor((640 - gapSize * (safePerRow - 1)) / safePerRow);
+    const sizeByRows = Math.floor((480 - gapSize * (rows - 1)) / Math.max(rows, 1));
+    const clampedSize = Math.max(56, Math.min(160, Math.min(sizeByColumns, sizeByRows)));
+    return clampedSize;
+  }
+
   function renderEquationQuestion(base, addend, qIdx) {
     return `
       <div class="q-block q-block-equation">
@@ -1257,6 +1758,30 @@
           <span>${addend}</span>
           <span>=</span>
           <span class="eq-answer-line"></span>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderImageQuestion(imageUrl, imageCount, imagePerRow) {
+    const safeCount = parseBoundedInt(imageCount, 15, 1, 40);
+    const safePerRow = parseBoundedInt(imagePerRow, 5, 1, 8);
+    const tileSize = getAdaptiveImageTileSize(safeCount, safePerRow);
+    const gapSize = safePerRow <= 4 ? 14 : (safePerRow <= 6 ? 12 : 10);
+
+    const gridItems = Array.from({ length: safeCount }, () => {
+      return `<img class="ws-image-item" src="${imageUrl}" alt="Worksheet object counting visual"/>`;
+    }).join('');
+
+    const imageBlock = imageUrl
+      ? `<div class="ws-image-grid" style="grid-template-columns: repeat(${safePerRow}, ${tileSize}px); gap: ${gapSize}px;">${gridItems}</div>`
+      : `<div class="ws-image-missing">Image link is missing. Paste a valid URL in the 4A121 Image Link field in the sidebar.</div>`;
+
+    return `
+      <div class="ws-image-question">
+        <div class="ws-image-frame">
+          ${imageBlock}
+          <div class="ws-answer-box-row"><div class="ws-answer-box" aria-label="Answer box"></div></div>
         </div>
       </div>
     `;
@@ -1275,21 +1800,24 @@
     const levelLabel = (levelRaw || '').trim() || currentSection;
     const showName = document.getElementById('chkName').checked;
     const showDate = document.getElementById('chkDate').checked;
+    const isTypeE = !combineTypes && currentType === 'E';
+    const isTypeF = !combineTypes && currentType === 'F';
 
-    if (end <= start) {
+    if (!isTypeE && !isTypeF && end <= start) {
       if (!silent) alert('End number must be greater than start number.');
       return null;
     }
 
     const allNums = range(start, end);
-    const isTypeE = !combineTypes && currentType === 'E';
+    const imageUrl = getSectionImageUrl('4A121');
+    const imageGrid = getSectionImageGridSettings('4A121');
+    const imagePrompt = getConfiguredPromptForSection('4A121') || 'How many melons are there? Write the number in the box.';
     const showKidSticker = currentSection === '3A3I';
     const enforcedCount = getEnforcedQuestionCount();
-    const totalQ  = forcedTotalQ ?? enforcedCount ?? requestedTotalQ;
-    const isOneQuestionLayout = !isTypeE && totalQ === 1;
-    const isTwoQuestionLayout = !isTypeE && totalQ === 2;
-    const segLen  = Math.ceil(allNums.length / totalQ);
-    const typeLabel = combineTypes ? 'Mixed (A + B + C + D)' : `Type ${currentType}`;
+    const totalQ  = isTypeF ? 1 : (forcedTotalQ ?? enforcedCount ?? requestedTotalQ);
+    const isOneQuestionLayout = !isTypeE && !isTypeF && totalQ === 1;
+    const isTwoQuestionLayout = !isTypeE && !isTypeF && totalQ === 2;
+    const segLen  = Math.ceil(allNums.length / Math.max(totalQ, 1));
 
     let questions = '';
     if (isTypeE) {
@@ -1304,6 +1832,8 @@
       }
 
       questions = `<div class="equation-grid">${equationItems.join('')}</div>`;
+    } else if (isTypeF) {
+      questions = renderImageQuestion(imageUrl, imageGrid.count, imageGrid.perRow);
     } else {
       for (let q = 0; q < totalQ; q++) {
         const nums = allNums.slice(q * segLen, (q + 1) * segLen);
@@ -1333,16 +1863,16 @@
 
           <div class="ws-center-column">
             <div class="ws-main-title">WORK<span class="muted">SHEET</span></div>
-            <div class="ws-meta-line ws-level-line">English Level:${levelLabel}</div>
+            <div class="ws-meta-line ws-level-line">Level: ${levelLabel}</div>
             <div class="ws-meta-line">Activity: ${title}</div>
           </div>
 
           <div class="ws-right-column">${fields}</div>
         </div>
 
-        <div class="ws-instruction">${title}.</div>
+        <div class="ws-instruction">${isTypeF ? imagePrompt : `${title}.`}</div>
 
-        <div class="ws-questions ${isTypeE ? 'ws-questions-e' : 'ws-questions-default'}">
+        <div class="ws-questions ${isTypeE ? 'ws-questions-e' : (isTypeF ? 'ws-questions-f' : 'ws-questions-default')}" >
           ${questions}
         </div>
 
@@ -1407,6 +1937,8 @@
   }
 
   function resolveQuestionCountForA4(requestedCount) {
+    if (!combineTypes && currentType === 'F') return 1;
+
     const enforcedCount = getEnforcedQuestionCount();
     if (enforcedCount !== null) return enforcedCount;
 
@@ -1496,6 +2028,16 @@
   .ws-questions-default .q-block { margin-bottom: 0; }
   .ws-questions-e { display: flex; }
   .ws-questions-e .equation-grid { width: 100%; }
+  .ws-questions-f { display: flex; align-items: stretch; }
+  .ws-image-question { width: 100%; display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+  .ws-image-prompt { font-size: 28px; font-weight: 700; color: #111827; line-height: 1.2; }
+  .ws-image-frame { flex: 1; min-height: 0; border: 2px solid #fdba74; border-radius: 12px; padding: 12px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #fff7ed; }
+  .ws-image-frame > img { width: 100%; max-height: 150mm; object-fit: contain; object-position: center; border-radius: 8px; background: white; }
+  .ws-image-missing { width: 100%; min-height: 90mm; border: 2px dashed #fb923c; border-radius: 10px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; color: #9a3412; font-size: 13px; font-weight: 600; line-height: 1.4; background: #fff; }
+  .ws-image-grid { width: 100%; display: grid; justify-content: center; align-content: center; gap: 14px 12px; padding: 2px 2px 98px; }
+  .ws-image-item { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: contain; object-position: center; display: block; border-radius: 6px; }
+  .ws-answer-box-row { display: flex; justify-content: flex-end; position: absolute; right: 12px; bottom: 12px; z-index: 2; }
+  .ws-answer-box { width: 84px; height: 84px; border: 3px solid #4b5563; border-radius: 14px; background: white; }
   .q-block { margin-bottom: 24px; }
   .q-num { font-size: 13px; font-weight: 700; color: #9ca3af; margin-bottom: 8px; }
   .num-row { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
@@ -1547,8 +2089,11 @@
   }
 
   // Auto generate on load
+  initializeSidebarResize();
+  initializeSectionImageInputs();
   syncLevelFieldWithSection(currentSection, true);
   updateSectionUI();
+  applyWorksheetSearchFilter();
   syncQuestionCountControl();
   generateWorksheet();
 </script>
