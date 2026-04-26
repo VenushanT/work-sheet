@@ -43,7 +43,7 @@
     const start    = Math.max(0, parseInt(options.rangeStart, 10) || 31);
     const end      = Math.max(start + 1, parseInt(options.rangeEnd, 10) || 70);
     const perRow   = Math.max(2, Math.min(20, parseInt(options.perRow, 10) || 10));
-    const blankCnt = Math.max(1, parseInt(options.blankCount, 10) || 4);
+    const targetBlankCnt = Math.max(1, parseInt(options.blankCount, 10) || 4);
     const rng      = seededRandom(options.seed);
 
     const allNums  = [];
@@ -51,32 +51,33 @@
 
     const pool = [];
 
-    // Slide a window of `perRow` numbers across the range, generating unique segments.
-    // If we run out of distinct windows, wrap around with a random offset.
+    // Slide a window of `perRow` numbers across the range, progressively moving forward.
     const maxDistinct = Math.max(1, allNums.length - perRow + 1);
-    const offsets     = [];
-    for (let i = 0; i < maxDistinct; i++) offsets.push(i);
-
-    const shuffledOffsets = shuffle(offsets, rng);
-    let idx = 0;
 
     while (pool.length < POOL_SIZE) {
-      const offset = shuffledOffsets[idx % shuffledOffsets.length] +
-                     (Math.floor(idx / shuffledOffsets.length) * Math.max(1, Math.floor(rng() * 3)));
-      idx++;
+      // Progress over offsets linearly as page increases.
+      const progress = pool.length / (POOL_SIZE - 1 || 1); // 0.0 to 1.0
+      
+      // Map progress directly to the available distinct windows.
+      // If there are fewer windows than pool size, this naturally duplicates 
+      // the same windows a few times before moving to the next.
+      const rawOffset = Math.floor(progress * (maxDistinct - 1));
 
-      const safeOffset = offset % Math.max(1, allNums.length);
+      const safeOffset = rawOffset % Math.max(1, allNums.length);
       const nums = [];
       for (let i = 0; i < perRow; i++) {
         nums.push(allNums[(safeOffset + i) % allNums.length]);
       }
+
+      // Progressively increase blank count up to targetBlankCnt
+      const currentBlankCnt = Math.max(1, Math.ceil(((pool.length + 1) / POOL_SIZE) * targetBlankCnt));
 
       pool.push({
         id:          pool.length + 1,
         section:     '3A3I',
         variationId,
         label:       `Q${pool.length + 1}: ${nums[0]}–${nums[nums.length - 1]} (${variationId})`,
-        data:        { nums, blankCount: blankCnt },
+        data:        { nums, blankCount: currentBlankCnt },
       });
     }
 
@@ -86,23 +87,64 @@
   /* ── 2A8 pool generator ────────────────────────────────────── */
 
   function generate2A8(variationId, options) {
-    const addend      = Math.max(0, Math.min(99, parseInt(options.eqAddend, 10) || 3));
-    const seedNumbers = options.seedNumbers || [];
+    const targetAddend = Math.max(0, Math.min(99, parseInt(options.eqAddend, 10) || 3));
+    let seedNumbers   = options.seedNumbers || [];
     const rng         = seededRandom(options.seed);
     const pool        = [];
 
+    // Setup progressive base pool
+    if (!seedNumbers.length) {
+      seedNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    } else {
+      seedNumbers = [...seedNumbers].sort((a, b) => a - b);
+    }
+
+    // Determine the progression of addends (e.g., if target=3, build up +1, +2, +3)
+    const addendsToCover = [];
+    if (targetAddend === 0) {
+      addendsToCover.push(0);
+    } else {
+      for (let i = 1; i <= targetAddend; i++) addendsToCover.push(i);
+    }
+
+    // Pre-calculate which pages get which addends to ensure smooth chunks
+    const pagesAssignments = [];
+    const chunkCounts = new Array(addendsToCover.length).fill(0);
+    for (let i = 0; i < POOL_SIZE; i++) {
+        const idx = Math.min(addendsToCover.length - 1, Math.floor(i / (POOL_SIZE / addendsToCover.length)));
+        pagesAssignments.push(idx);
+        chunkCounts[idx]++;
+    }
+
+    const currentIndexInChunk = new Array(addendsToCover.length).fill(0);
+
     while (pool.length < POOL_SIZE) {
-      const qIdx  = pool.length;
-      const base  = seedNumbers.length
-        ? seedNumbers[qIdx % seedNumbers.length]
-        : Math.floor(rng() * 11) + 1;
+      const addendIndex = pagesAssignments[pool.length];
+      const currentAddend = addendsToCover[addendIndex];
+      
+      const chunkTotal = chunkCounts[addendIndex];
+      const chunkPos = currentIndexInChunk[addendIndex]++;
+      const chunkProgress = chunkTotal > 1 ? (chunkPos / (chunkTotal - 1)) : 1.0;
+
+      // Slide a window over the available bases so smaller ones appear first in the chunk
+      const windowSize = Math.max(3, Math.floor(seedNumbers.length * 0.4));
+      const maxStartIndex = Math.max(0, seedNumbers.length - windowSize);
+      
+      const startIndex = Math.floor(chunkProgress * maxStartIndex);
+      const allowedBases = seedNumbers.slice(startIndex, startIndex + windowSize);
+
+      const bases = [];
+      for (let i = 0; i < 16; i++) {
+        const base = allowedBases[Math.floor(rng() * allowedBases.length)];
+        bases.push(base);
+      }
 
       pool.push({
         id:          pool.length + 1,
         section:     '2A8',
         variationId,
-        label:       `Q${pool.length + 1}: ${base} ${variationId.includes('3') ? '−' : '+'} ${addend} (${variationId})`,
-        data:        { base, addend, variationId },
+        label:       `Page ${pool.length + 1}: +${currentAddend} (${variationId})`,
+        data:        { bases, addend: currentAddend, variationId },
       });
     }
 
@@ -112,21 +154,29 @@
   /* ── 4A121 pool generator ──────────────────────────────────── */
 
   function generate4A121(variationId, options) {
-    const imageUrl  = options.imageUrl  || '';
+    const imageUrl    = options.imageUrl  || '';
+    const promptTitle = options.title || 'How many are there?';
     const imagePerRow = Math.max(1, Math.min(8, parseInt(options.imagePerRow, 10) || 5));
-    const maxCount  = imagePerRow * 5;
-    const rng       = seededRandom(options.seed);
-    const pool      = [];
+    const maxCount    = imagePerRow * 5;
+    const rng         = seededRandom(options.seed);
+    const pool        = [];
 
     while (pool.length < POOL_SIZE) {
-      // Vary the image count across the pool for uniqueness
-      const count = Math.max(1, Math.min(maxCount, Math.floor(rng() * maxCount) + 1));
+      // Progressively increase the maximum allowed count based on the page number
+      const progress = pool.length / (POOL_SIZE - 1 || 1); // 0.0 to 1.0
+      
+      const minCap = Math.min(3, maxCount);
+      const currentMaxCap = Math.floor(minCap + progress * (maxCount - minCap));
+
+      // Choose a random count up to the progressively allowed maximum
+      const count = Math.max(1, Math.min(currentMaxCap, Math.floor(rng() * currentMaxCap) + 1));
+
       pool.push({
         id:          pool.length + 1,
         section:     '4A121',
         variationId,
         label:       `Q${pool.length + 1}: ${count} images (${variationId})`,
-        data:        { imageUrl, imageCount: count, imagePerRow, variationId },
+        data:        { prompt: promptTitle, imageUrl, imageCount: count, imagePerRow, variationId },
       });
     }
 

@@ -125,29 +125,38 @@
       </div>
     </div>
 
-    <!-- 4A121 Image Link -->
-    <div class="card type-f-only is-hidden">
-      <div class="card-title">4A121 Image Link</div>
+    <!-- Image Link (Global Decoration / 4A121) -->
+    <div class="card" id="cardImageGlobal">
+      <div class="card-title">Image Link (Optional)</div>
       <div class="field-row">
         <span class="field-label">Image URL (S3/CDN)</span>
       </div>
       <input
         type="url"
         class="field-input field-input-full"
-        id="imageUrl4A121"
+        id="imageUrlGlobal"
         placeholder="https://your-bucket.s3.amazonaws.com/image.jpg"
         onchange="onSection4A121ImageUrlChange()"
       />
-      <div class="field-row" style="margin-top:10px;">
-        <span class="field-label">How many images</span>
-        <input type="number" class="field-input" id="imageCount4A121" value="15" min="1" max="40" onchange="onSection4A121ImageUrlChange()"/>
+      
+      <!-- 4A121 specific grid controls -->
+      <div class="type-f-only is-hidden" style="margin-top:12px;">
+        <div class="field-row">
+          <span class="field-label">How many images</span>
+          <input type="number" class="field-input" id="imageCount4A121" value="15" min="1" max="40" onchange="onSection4A121ImageUrlChange()"/>
+        </div>
+        <div class="field-row" style="margin-top:6px;">
+          <span class="field-label">Images per row</span>
+          <input type="number" class="field-input" id="imagePerRow4A121" value="5" min="1" max="8" onchange="onSection4A121ImageUrlChange()"/>
+        </div>
+        <div class="type-desc" style="margin-top:8px;">
+          Paste one image URL, set the count, and it will tile as a repeated grid.
+        </div>
       </div>
-      <div class="field-row">
-        <span class="field-label">Images per row</span>
-        <input type="number" class="field-input" id="imagePerRow4A121" value="5" min="1" max="8" onchange="onSection4A121ImageUrlChange()"/>
-      </div>
-      <div class="type-desc" style="margin-top:8px;">
-        Paste one image URL, set the count, and it will tile as a repeated grid.
+
+      <!-- Decoration description for other sections -->
+      <div class="type-desc non-f-only is-hidden" style="margin-top:8px;">
+        If you provide an image URL, a decoration image will be placed near the top of the worksheet.
       </div>
     </div>
 

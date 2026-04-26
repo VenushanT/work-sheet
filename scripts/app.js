@@ -197,6 +197,7 @@
 
     document.querySelectorAll('.type-e-only').forEach(el => el.classList.toggle('is-hidden', !is2A8));
     document.querySelectorAll('.type-f-only').forEach(el => el.classList.toggle('is-hidden', !is4A121));
+    document.querySelectorAll('.non-f-only').forEach(el => el.classList.toggle('is-hidden', is4A121));
     document.querySelectorAll('.type-4a-only').forEach(el => el.classList.toggle('is-hidden', !is4A));
 
     const showBlank = is3A3I && (combineTypes || currentType === 'B' || currentType === 'D' || currentType === 'C' || currentType === 'J');
@@ -215,8 +216,8 @@
     if (currentSection === '4A' && is4ATraceType(currentType)) return 2;
     if (!combineTypes && currentType === 'F')  return 1;
     if (!combineTypes && currentType.startsWith('F') && currentSection === '4A121') return 1;
-    if (!combineTypes && currentType === 'E')  return 16;
-    if (!combineTypes && currentType.startsWith('E') && currentSection === '2A8') return 16;
+    if (!combineTypes && currentType === 'E')  return 1;
+    if (!combineTypes && currentType.startsWith('E') && currentSection === '2A8') return 1;
     return null;
   }
 
@@ -304,10 +305,10 @@
   }
 
   function getSectionImageUrl() {
-    const inp = document.getElementById('imageUrl4A121');
+    const inp = document.getElementById('imageUrlGlobal');
     const val = (inp?.value || '').trim();
     if (/^https?:\/\//i.test(val)) return val;
-    return window.WORKSHEET_4A121?.getConfiguredImageForSection?.('4A121') || '';
+    return currentSection === '4A121' ? (window.WORKSHEET_4A121?.getConfiguredImageForSection?.('4A121') || '') : '';
   }
 
   function getSectionImageGrid() {
@@ -320,14 +321,14 @@
   }
 
   function initializeSectionImageInputs() {
-    const imgInp   = document.getElementById('imageUrl4A121');
+    const imgInp   = document.getElementById('imageUrlGlobal');
     const cntInp   = document.getElementById('imageCount4A121');
     const prInp    = document.getElementById('imagePerRow4A121');
     if (!imgInp || !cntInp || !prInp) return;
 
     const cfgUrl  = window.WORKSHEET_4A121?.getConfiguredImageForSection?.('4A121') || '';
     const cfgGrid = window.WORKSHEET_4A121?.getConfiguredGridForSection?.('4A121') ?? { count: 15, perRow: 5 };
-    if (cfgUrl && !imgInp.value.trim()) imgInp.value = cfgUrl;
+    if (currentSection === '4A121' && cfgUrl && !imgInp.value.trim()) imgInp.value = cfgUrl;
     if (!cntInp.value.trim()) cntInp.value = cfgGrid.count;
     if (!prInp.value.trim())  prInp.value  = cfgGrid.perRow;
     normalize4A121GridInputs();
@@ -414,6 +415,7 @@
       imageCount:  getSectionImageGrid().count,
       imagePerRow: getSectionImageGrid().perRow,
       imageValues: traceImageUrlCache[`4A${getTraceNumber()}`] || [],
+      title:       document.getElementById('wsTitle')?.value?.trim() || '',
       seed:        Date.now(),
     };
   }
@@ -434,7 +436,7 @@
 
   /* ── Main generate worksheet ───────────────────────────────── */
 
-  function generateWorksheet() {
+  function generateWorksheet(keepPool = false) {
     syncQuestionCountControl();
     sync4AImageCacheFromDOM();
 
@@ -443,8 +445,10 @@
     const enforced       = getEnforcedQuestionCount();
 
     // Generate the 50-question pool; admin may have reordered it
-    const pool = generatePool();
-    const ordered = window.ORDER_MANAGER?.getOrderedQuestions?.() ?? pool;
+    if (!keepPool || !currentPool || currentPool.length === 0) {
+      currentPool = generatePool();
+    }
+    const ordered = window.ORDER_MANAGER?.getOrderedQuestions?.() ?? currentPool;
 
     // For standard (non-pool-print) mode, pick first N questions
     const questionsToRender = ordered.slice(0, enforced ?? requestedCount);
@@ -457,6 +461,7 @@
       section:    currentSection,
       variationId: currentType,
       poolMode:   false,
+      globalImageUrl: document.getElementById('imageUrlGlobal')?.value?.trim() || '',
     };
 
     // Handle combine A+B+C+D for 3A3I
@@ -464,7 +469,7 @@
     if (combineTypes && currentSection === '3A3I') {
       // Build 4 segments, one per type
       const combineQs = ALL_TYPES.map((t, ti) => ({
-        ...pool[ti % pool.length],
+        ...currentPool[ti % currentPool.length],
         variationId: t,
       }));
       html = window.WORKSHEET_BUILDER?.buildWorksheetHTML(combineQs, { ...opts, variationId: 'A' });
@@ -509,6 +514,7 @@
       section:    currentSection,
       variationId: currentType,
       poolMode:   true,
+      globalImageUrl: document.getElementById('imageUrlGlobal')?.value?.trim() || '',
     };
 
     const html = window.WORKSHEET_BUILDER?.buildWorksheetHTML(ordered, opts);
@@ -559,6 +565,7 @@
       section:    currentSection,
       variationId: currentType,
       poolMode:   false,
+      globalImageUrl: document.getElementById('imageUrlGlobal')?.value?.trim() || '',
     };
 
     const html = window.WORKSHEET_BUILDER?.buildWorksheetHTML(ordered.slice(0, count), opts);
@@ -621,7 +628,7 @@ ${exactColorCSS}
 
   function onSection4A121ImageUrlChange() {
     normalize4A121GridInputs();
-    if (currentSection === '4A121' || currentType.startsWith('F')) generateWorksheet();
+    generateWorksheet();
   }
 
   /* ── Variation card builder (renders type cards from config) ── */
@@ -670,7 +677,8 @@ ${exactColorCSS}
   window.toggleSidebar           = (f) => toggleSidebar(f);
   window.selectSection           = selectSection;
   window.selectType              = selectType;
-  window.generateWorksheet       = generateWorksheet;
+  window.generateWorksheet       = () => generateWorksheet(false);
+  window.renderCurrentPool       = () => generateWorksheet(true);
   window.generatePoolPrint       = generatePoolPrint;
   window.generateCombinedWorksheet = generateCombinedWorksheet;
   window.printWorksheet          = printWorksheet;

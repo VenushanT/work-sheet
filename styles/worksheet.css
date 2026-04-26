@@ -23,14 +23,14 @@
   display: flex;
   align-items: stretch;
   border-bottom: 1.5px solid #1f2937;
-  margin-bottom: 16px;
-  padding-bottom: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
   font-family: var(--font-display);
 }
 
 /* Brand column (logo) */
 .ws-brand-column {
-  width: 225px;
+  width: 180px;
   border-right: 1.2px solid #9ca3af;
   padding-right: 12px;
   display: flex;
@@ -39,16 +39,17 @@
   gap: 8px;
 }
 .ws-brand-logo-wrap {
-  min-height: 84px;
+  min-height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .ws-brand-logo {
   width: 100%;
-  max-height: 86px;
+  max-height: 60px;
   object-fit: contain;
   object-position: left center;
+  filter: grayscale(100%);
 }
 .ws-brand-contact {
   font-size: 9.5px;
@@ -77,7 +78,7 @@
 }
 .ws-main-title {
   font-family: inherit;
-  font-size: 30px;
+  font-size: 24px;
   letter-spacing: 0.01em;
   line-height: 0.95;
   color: #000000;
@@ -85,16 +86,16 @@
 .ws-main-title .muted { color: #000000; }
 .ws-meta-line {
   font-family: inherit;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: #111827;
   line-height: 1.15;
 }
-.ws-level-line { font-size: 16px; font-weight: 800; line-height: 1.1; }
+.ws-level-line { font-size: 14px; font-weight: 800; line-height: 1.1; }
 
 /* Right column (fill fields) */
 .ws-right-column {
-  width: 230px;
+  width: 200px;
   padding-left: 12px;
   display: flex;
   flex-direction: column;
@@ -106,7 +107,7 @@
   align-items: baseline;
   gap: 7px;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: #111827;
   line-height: 1.2;
@@ -162,7 +163,9 @@
   margin-top: 8px;
   padding-top: 6px;
   border-top: 1px solid var(--gray-200);
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
   font-size: 10px;
   line-height: 1.35;
   color: var(--gray-600);

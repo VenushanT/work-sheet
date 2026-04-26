@@ -83,12 +83,83 @@
       card.dataset.pos    = position;
       card.dataset.idx    = poolIdx;
 
+      let editorHtml = '';
+      if (q.section === '3A3I') {
+        editorHtml = `
+          <input type="text" class="admin-edit-input js-edit-nums" value="${(q.data.nums || []).join(',')}" title="Numbers (comma separated)" style="width:140px; padding:2px 4px; border:1px solid #d1d5db; border-radius:4px; font-size:12px;"/>
+        `;
+      } else if (q.section === '2A8') {
+        editorHtml = `
+          <input type="text" class="admin-edit-input js-edit-bases" value="${(q.data.bases || []).join(',')}" title="Base Numbers" style="width:120px; padding:2px 4px; border:1px solid #d1d5db; border-radius:4px; font-size:12px;"/>
+          ${q.variationId === 'E10' ? '' : `<input type="number" class="admin-edit-input js-edit-addend" value="${q.data.addend}" title="Addend" style="width:50px; padding:2px 4px; border:1px solid #d1d5db; border-radius:4px; font-size:12px;"/>`}
+        `;
+      } else if (q.section === '4A121') {
+        editorHtml = `
+          <input type="text" class="admin-edit-input js-edit-prompt" value="${_escapeHtml(q.data.prompt || '')}" title="Prompt Title" placeholder="Instruction" style="width:120px; padding:2px 4px; border:1px solid #d1d5db; border-radius:4px; font-size:12px;"/>
+          <input type="url" class="admin-edit-input js-edit-image-url" value="${_escapeHtml(q.data.imageUrl || '')}" title="Image URL" placeholder="URL" style="width:100px; padding:2px 4px; border:1px solid #d1d5db; border-radius:4px; font-size:12px;"/>
+          <input type="number" class="admin-edit-input js-edit-count" value="${q.data.imageCount}" title="Image Count" style="width:40px; padding:2px 4px; border:1px solid #d1d5db; border-radius:4px; font-size:12px;"/>
+        `;
+      } else {
+        editorHtml = `<span class="order-q-label">${_escapeHtml(q.label)}</span>`;
+      }
+
       card.innerHTML = `
-        <span class="order-q-handle" aria-hidden="true">⠿</span>
-        <span class="order-q-index">${position + 1}</span>
-        <span class="order-q-label">${_escapeHtml(q.label)}</span>
+        <span class="order-q-handle" aria-hidden="true" title="Drag to reorder">⠿</span>
+        <span class="order-q-index" style="min-width: 24px;">${position + 1}</span>
+        <div class="order-q-edit-fields" style="flex:1; display:flex; gap:6px; align-items:center;">${editorHtml}</div>
         <span class="order-q-type-badge">${_escapeHtml(q.variationId)}</span>
       `;
+
+      // Attach edit listeners
+      const numInput = card.querySelector('.js-edit-nums');
+      if (numInput) {
+        numInput.addEventListener('input', (e) => {
+          const val = e.target.value;
+          q.data.nums = val.split(',').map(n => parseInt(n.trim(), 10)).filter(Number.isFinite);
+          if (window.renderCurrentPool) window.renderCurrentPool();
+        });
+      }
+
+      const basesInput = card.querySelector('.js-edit-bases');
+      if (basesInput) {
+        basesInput.addEventListener('input', (e) => {
+          const val = e.target.value;
+          q.data.bases = val.split(',').map(n => parseInt(n.trim(), 10)).filter(Number.isFinite);
+          if (window.renderCurrentPool) window.renderCurrentPool();
+        });
+      }
+
+      const addendInput = card.querySelector('.js-edit-addend');
+      if (addendInput) {
+        addendInput.addEventListener('input', (e) => {
+          q.data.addend = parseInt(e.target.value, 10) || 0;
+          if (window.renderCurrentPool) window.renderCurrentPool();
+        });
+      }
+
+      const promptInput = card.querySelector('.js-edit-prompt');
+      if (promptInput) {
+        promptInput.addEventListener('input', (e) => {
+          q.data.prompt = e.target.value;
+          if (window.renderCurrentPool) window.renderCurrentPool();
+        });
+      }
+
+      const countInput = card.querySelector('.js-edit-count');
+      if (countInput) {
+        countInput.addEventListener('input', (e) => {
+          q.data.imageCount = parseInt(e.target.value, 10) || 1;
+          if (window.renderCurrentPool) window.renderCurrentPool();
+        });
+      }
+
+      const imgUrlInput = card.querySelector('.js-edit-image-url');
+      if (imgUrlInput) {
+        imgUrlInput.addEventListener('input', (e) => {
+          q.data.imageUrl = e.target.value;
+          if (window.renderCurrentPool) window.renderCurrentPool();
+        });
+      }
 
       _attachDragHandlers(card, container);
       container.appendChild(card);

@@ -108,8 +108,11 @@
       }
 
       case '2A8': {
-        if (window.WORKSHEET_2A8?.buildEquationGrid) {
-          return window.WORKSHEET_2A8.buildEquationGrid(1, variationId, [data.base], data.addend);
+        if (window.WORKSHEET_2A8?.renderSingleVariation && data.bases && data.bases.length) {
+          const items = data.bases.map((base, idx) => 
+            window.WORKSHEET_2A8.renderSingleVariation(base, data.addend, variationId, idx)
+          );
+          return `<div class="equation-grid">\n${items.join('')}\n</div>`;
         }
         return '';
       }
@@ -176,11 +179,17 @@
       section    = '3A3I',
       variationId = 'A',
       poolMode   = false,   // true → render all 50 as separate pages
+      globalImageUrl = '',
     } = opts;
 
     const fields      = buildHeaderFields({ showName, showDate });
     const activityTitle = title;
     const showSticker = section === '3A3I';
+
+    const decorationHtml = globalImageUrl && section !== '4A121' && section !== '4A' ? 
+      `<div class="ws-global-decoration" style="text-align:center; padding-bottom:15px; margin-top:-10px;">
+         <img src="${escapeHtml(globalImageUrl)}" style="max-height:140px; max-width:90%; object-fit:contain; border-radius:8px;" alt=""/>
+       </div>` : '';
 
     if (poolMode) {
       // Render each question on its own page (for 50-variation prints)
@@ -191,10 +200,18 @@
         const headerBar   = buildHeaderBar({ levelLabel, activityTitle, fields });
         const footer      = buildFooter(pageIdx + 1, showSticker);
 
+        let itemPrompt = q.data?.prompt;
+        if (!itemPrompt) {
+          itemPrompt = q.section === '4A121' 
+            ? (window.WORKSHEET_4A121?.getConfiguredPromptForSection?.('4A121') || title)
+            : `${title}.`;
+        }
+
         return `
           <div class="ws-page one-question-layout ${layoutClass}" id="wsPage-${pageIdx + 1}">
             ${headerBar}
-            <div class="ws-instruction">${escapeHtml(title)}.</div>
+            <div class="ws-instruction">${escapeHtml(itemPrompt)}</div>
+            ${decorationHtml}
             <div class="ws-questions ${wrapClass}">${qHtml}</div>
             ${footer}
           </div>
@@ -203,9 +220,7 @@
     }
 
     // Standard mode: render all questions on one page
-    const questionsHTML = questions.map((q, qIdx) =>
-      renderQuestionHTML(q, qIdx)
-    ).join('');
+    const questionsHTML = questions.map((q, qIdx) => renderQuestionHTML(q, qIdx)).join('');
 
     const layoutClass = getLayoutClass(section, variationId, questions.length);
     const wrapClass   = getQuestionsWrapClass(section);
@@ -250,14 +265,18 @@
 
     const headerBar = buildHeaderBar({ levelLabel, activityTitle, fields });
     const footer    = buildFooter(1, showSticker);
-    const prompt    = section === '4A121'
+    
+    let defaultPrompt = section === '4A121'
       ? (window.WORKSHEET_4A121?.getConfiguredPromptForSection?.('4A121') || title)
       : `${title}.`;
+      
+    const prompt = questions[0]?.data?.prompt || defaultPrompt;
 
     return `
       <div class="ws-page ${layoutClass}" id="wsPage">
         ${headerBar}
         <div class="ws-instruction">${escapeHtml(prompt)}</div>
+        ${decorationHtml}
         <div class="ws-questions ${wrapClass}">${questionsHTML}</div>
         ${footer}
       </div>

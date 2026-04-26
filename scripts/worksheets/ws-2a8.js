@@ -73,13 +73,92 @@
 
   // ── Variation grid builders ───────────────────────────────────
 
+  function renderSingleVariation(base, addend, variationId, qIdx) {
+    let result = '';
+    switch (variationId) {
+      // E — Addition: base + addend = ___
+      case 'E':
+      default:
+        result = renderEquationQuestion(base, addend, '+', qIdx, 'answer');
+        break;
+
+      // E2 — Missing addend: base + ___ = sum
+      case 'E2':
+        result = renderEquationQuestion(base, addend, '+', qIdx, 'addend');
+        break;
+
+      // E3 — Subtraction: base - addend = ___   (keep result ≥ 0)
+      case 'E3': {
+        const minuend    = Math.max(base, addend);
+        const subtrahend = Math.min(base, addend);
+        result = renderEquationQuestion(minuend, subtrahend, '-', qIdx, 'answer');
+        break;
+      }
+
+      // E4 — Mixed: alternate + and -
+      case 'E4': {
+        const op = qIdx % 2 === 0 ? '+' : '-';
+        const a  = op === '-' ? Math.max(base, addend) : base;
+        const b  = op === '-' ? Math.min(base, addend) : addend;
+        result = renderEquationQuestion(a, b, op, qIdx, 'answer');
+        break;
+      }
+
+      // E5 — Doubles: base + base = ___
+      case 'E5':
+        result = renderEquationQuestion(base, base, '+', qIdx, 'answer');
+        break;
+
+      // E6 — Near doubles: base + (base ± 1) = ___
+      case 'E6': {
+        const nearB = base + (qIdx % 2 === 0 ? 1 : -1);
+        const safeB = Math.max(0, nearB);
+        result = renderEquationQuestion(base, safeB, '+', qIdx, 'answer');
+        break;
+      }
+
+      // E7 — Adding 10: base + 10 = ___
+      case 'E7':
+        result = renderEquationQuestion(base, 10, '+', qIdx, 'answer');
+        break;
+
+      // E8 — Adding 0: base + 0 = ___
+      case 'E8':
+        result = renderEquationQuestion(base, 0, '+', qIdx, 'answer');
+        break;
+
+      // E9 — Number bonds to 10: base + ___ = 10
+      case 'E9': {
+        const bondBase = clamp(base, 0, 10);
+        result = renderEquationQuestion(bondBase, 10 - bondBase, '+', qIdx, 'addend');
+        break;
+      }
+
+      // E10 — Three-number addition: a + b + c = ___
+      case 'E10': {
+        const c = Math.max(0, addend - 1);
+        result = `
+          <div class="q-block q-block-equation">
+            <div class="q-num">(${qIdx + 1})</div>
+            <div class="equation-row">
+              <span>${base}</span>
+              <span>+</span>
+              <span>${addend}</span>
+              <span>+</span>
+              <span>${c}</span>
+              <span>=</span>
+              <span class="eq-answer-line"></span>
+            </div>
+          </div>
+        `;
+        break;
+      }
+    }
+    return result;
+  }
+
   /**
    * Builds an equation grid for a given variation.
-   *
-   * @param {number}   totalQ      - Total number of equation items
-   * @param {string}   variationId - E, E2 … E10
-   * @param {number[]} seedNumbers - Suggested base numbers (from user input)
-   * @param {number}   addend      - The fixed addend (used where applicable)
    */
   function buildEquationGrid(totalQ, variationId, seedNumbers, addend) {
     const seeds  = seedNumbers.length ? seedNumbers : [1];
@@ -88,88 +167,7 @@
 
     for (let q = 0; q < safeQ; q++) {
       const base = seeds[q % seeds.length];
-
-      switch (variationId) {
-
-        // E — Addition: base + addend = ___
-        case 'E':
-        default:
-          items.push(renderEquationQuestion(base, addend, '+', q, 'answer'));
-          break;
-
-        // E2 — Missing addend: base + ___ = sum
-        case 'E2':
-          items.push(renderEquationQuestion(base, addend, '+', q, 'addend'));
-          break;
-
-        // E3 — Subtraction: base - addend = ___   (keep result ≥ 0)
-        case 'E3': {
-          const minuend    = Math.max(base, addend);
-          const subtrahend = Math.min(base, addend);
-          items.push(renderEquationQuestion(minuend, subtrahend, '-', q, 'answer'));
-          break;
-        }
-
-        // E4 — Mixed: alternate + and -
-        case 'E4': {
-          const op = q % 2 === 0 ? '+' : '-';
-          const a  = op === '-' ? Math.max(base, addend) : base;
-          const b  = op === '-' ? Math.min(base, addend) : addend;
-          items.push(renderEquationQuestion(a, b, op, q, 'answer'));
-          break;
-        }
-
-        // E5 — Doubles: base + base = ___
-        case 'E5':
-          items.push(renderEquationQuestion(base, base, '+', q, 'answer'));
-          break;
-
-        // E6 — Near doubles: base + (base ± 1) = ___
-        case 'E6': {
-          const nearB = base + (q % 2 === 0 ? 1 : -1);
-          const safeB = Math.max(0, nearB);
-          items.push(renderEquationQuestion(base, safeB, '+', q, 'answer'));
-          break;
-        }
-
-        // E7 — Adding 10: base + 10 = ___
-        case 'E7':
-          items.push(renderEquationQuestion(base, 10, '+', q, 'answer'));
-          break;
-
-        // E8 — Adding 0: base + 0 = ___
-        case 'E8':
-          items.push(renderEquationQuestion(base, 0, '+', q, 'answer'));
-          break;
-
-        // E9 — Number bonds to 10: base + ___ = 10
-        case 'E9': {
-          const bondBase = clamp(base, 0, 10);
-          items.push(renderEquationQuestion(bondBase, 10 - bondBase, '+', q, 'addend'));
-          break;
-        }
-
-        // E10 — Three-number addition: a + b + c = ___
-        case 'E10': {
-          const c = Math.max(0, addend - 1);
-          const html = `
-            <div class="q-block q-block-equation">
-              <div class="q-num">(${q + 1})</div>
-              <div class="equation-row">
-                <span>${base}</span>
-                <span>+</span>
-                <span>${addend}</span>
-                <span>+</span>
-                <span>${c}</span>
-                <span>=</span>
-                <span class="eq-answer-line"></span>
-              </div>
-            </div>
-          `;
-          items.push(html);
-          break;
-        }
-      }
+      items.push(renderSingleVariation(base, addend, variationId, q));
     }
 
     return `<div class="equation-grid">${items.join('')}</div>`;
@@ -181,6 +179,7 @@
     parseIntegerList,
     renderEquationQuestion,
     buildEquationGrid,
+    renderSingleVariation,
   };
 
 })();
